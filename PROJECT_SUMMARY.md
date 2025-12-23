@@ -4,7 +4,7 @@
 
 **FlashStack** - The first trustless flash loan protocol on Bitcoin Layer 2 (Stacks)
 
-**Status**: ✅ Production-Ready MVP
+**Status**: ✅ Pre-audit testnet MVP
 **Timeline**: Ready for testnet deployment
 **Code**: 300+ lines of Clarity + comprehensive tests
 
@@ -228,7 +228,7 @@ See [GRANT_APPLICATION.md](GRANT_APPLICATION.md)
 | **Documentation** | 1,564 lines |
 | **Total Code** | ~2,200 lines |
 | **Development Time** | 2 weeks |
-| **Status** | Production-ready MVP |
+| **Status** | Pre-audit testnet MVP |
 
 ---
 
@@ -308,5 +308,6 @@ vs **Ethereum Flash Loans**:
 
 **FlashStack - Making Locked STX Liquid** ⚡
 
-*Production-ready flash loan protocol for Bitcoin L2*
+*Pre-audit testnet flash loan protocol for Bitcoin L2*
+
 

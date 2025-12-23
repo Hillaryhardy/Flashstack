@@ -1,4 +1,4 @@
-# FlashStack ⚡
+# FlashStack 
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 [![Testnet](https://img.shields.io/badge/testnet-LIVE-success)](https://explorer.hiro.so)
@@ -8,7 +8,7 @@
 > **Flash loans for Bitcoin Layer 2 - Built for Bitcoin's security model**  
 > Enabling instant, trustless capital for DeFi strategies on Stacks blockchain
 
-**Developer:** [Glory Matthew](https://github.com/mattglory) | **Status:** Production-Ready | **Network:** Stacks Testnet
+**Developer:** [Glory Matthew](https://github.com/mattglory) | **Status:** Pre-audit testnet (code complete, audit pending) | **Network:** Stacks Testnet
 
 ---
 
@@ -19,11 +19,11 @@ FlashStack is a flash loan protocol that brings instant, uncollateralized liquid
 ### Key Metrics (Testnet)
 
 ```
-✅ 27,000,000 sBTC Processed
-✅ 8 Receiver Contracts Deployed
-✅ 100% Success Rate  
-✅ Zero Inflation (Atomic Mint-Burn)
-✅ 0.05% Fee (Competitive with Ethereum)
+ 27,000,000 sBTC Processed
+ 8 Receiver Contracts Deployed
+ 100% Success Rate  
+ Zero Inflation (Atomic Mint-Burn)
+ 0.05% Fee (Competitive with Ethereum)
 ```
 
 ### Architecture
@@ -32,7 +32,7 @@ FlashStack is a flash loan protocol that brings instant, uncollateralized liquid
 - **Security Model:** Built for Bitcoin's block times and finality requirements
 - **Integration Ready:** Works seamlessly with yield aggregators and DeFi protocols
 
-[📊 Complete Test Results](./docs/archive/COMPLETE_SUCCESS.md) | [📖 Documentation](./docs)
+[ Complete Test Results](./docs/archive/COMPLETE_SUCCESS.md) | [ Documentation](./docs)
 
 ---
 
@@ -95,7 +95,7 @@ FlashStack enables atomic, uncollateralized loans within a single Bitcoin L2 blo
 )
 ```
 
-[📖 Integration Guide](./docs/02-technical/INTEGRATION_GUIDE.md) | [🔧 API Reference](./docs/02-technical/API_REFERENCE.md)
+[ Integration Guide](./docs/02-technical/INTEGRATION_GUIDE.md) | [ API Reference](./docs/02-technical/API_REFERENCE.md)
 
 ---
 
@@ -105,20 +105,20 @@ FlashStack enables atomic, uncollateralized loans within a single Bitcoin L2 blo
 
 | Feature | Traditional | FlashStack |
 |---------|------------|------------|
-| Collateral Risk | ❌ Liquidation risk | ✅ No liquidation |
-| Time Required | ❌ Hours/days | ✅ Single block |
-| Interest Costs | ❌ Ongoing fees | ✅ 0.05% one-time |
-| Capital Required | ❌ Significant | ✅ None (flash) |
-| Custody | ❌ Give up assets | ✅ Never lose custody |
+| Collateral Risk |  Liquidation risk |  No liquidation |
+| Time Required |  Hours/days |  Single block |
+| Interest Costs |  Ongoing fees |  0.05% one-time |
+| Capital Required |  Significant |  None (flash) |
+| Custody |  Give up assets |  Never lose custody |
 
 ### vs Other Flash Loan Protocols
 
 | Protocol | Network | Fee | Status |
 |----------|---------|-----|--------|
-| **FlashStack** | **Stacks L2** | **0.05%** | **✅ Live** |
-| Aave | Ethereum | 0.09% | ✅ Live |
-| dYdX | Ethereum | 0.05% | ✅ Live |
-| Balancer | Ethereum | 0.00%* | ✅ Live |
+| **FlashStack** | **Stacks L2** | **0.05%** | ** Live** |
+| Aave | Ethereum | 0.09% |  Live |
+| dYdX | Ethereum | 0.05% |  Live |
+| Balancer | Ethereum | 0.00%* |  Live |
 
 *Additional costs (gas, MEV, arbitrage)
 
@@ -133,10 +133,10 @@ FlashStack enables atomic, uncollateralized loans within a single Bitcoin L2 blo
 FlashStack integrates with [SNP (Stacks Nexus Protocol)](https://github.com/mattglory/snp-mvp), creating Bitcoin's first flash loan + yield aggregation ecosystem.
 
 **Combined Capabilities:**
-- ⚡ **Auto-Compounding** - Harvest and reinvest yields using flash capital
-- 🔄 **Instant Rebalancing** - Move between strategies atomically  
+-  **Auto-Compounding** - Harvest and reinvest yields using flash capital
+-  **Instant Rebalancing** - Move between strategies atomically  
 - 📈 **Leveraged Positions** - Amplify yields without liquidation risk
-- 🎯 **Protocol Optimization** - Automatic yield maximization
+-  **Protocol Optimization** - Automatic yield maximization
 
 These integrated features are unique to this ecosystem and unavailable on other Bitcoin Layer 2 protocols.
 
@@ -172,7 +172,7 @@ Complex multi-hop arbitrage across 3+ venues
 ### 8. SNP Integration (`snp-flashstack-receiver`)
 Enable flash-powered yield aggregation strategies
 
-[📁 View All Receivers](./contracts) | [📖 Developer Docs](./docs/02-technical)
+[ View All Receivers](./contracts) | [ Developer Docs](./docs/02-technical)
 
 ---
 
@@ -198,14 +198,14 @@ flash-receiver-trait.clar (12 LOC)
 
 ### Security Features
 
-- ✅ **Atomic Execution** - Entire transaction reverts if repayment fails
-- ✅ **Zero Custody** - FlashStack never holds user funds
-- ✅ **Inflation Protection** - Atomic mint-burn guarantees zero inflation
-- ✅ **Emergency Pause** - Circuit breaker for critical issues
-- ✅ **Access Control** - Admin functions protected
-- ✅ **Fee Limits** - Maximum 1% fee enforced in code
+-  **Atomic Execution** - Entire transaction reverts if repayment fails
+-  **Zero Custody** - FlashStack never holds user funds
+-  **Inflation Protection** - Atomic mint-burn guarantees zero inflation
+-  **Emergency Pause** - Circuit breaker for critical issues
+-  **Access Control** - Admin functions protected
+-  **Fee Limits** - Maximum 1% fee enforced in code
 
-[🔒 Security Policy](./SECURITY.md) | [📊 Architecture Details](./docs/01-project/ARCHITECTURE.md)
+[ Security Policy](./SECURITY.md) | [ Architecture Details](./docs/01-project/ARCHITECTURE.md)
 
 ---
 
@@ -254,20 +254,20 @@ clarinet console
 (contract-call? .flashstack-core get-stats)
 ```
 
-[📖 Complete Quickstart](./QUICKSTART.md) | [📚 Full Documentation](./docs)
+[ Complete Quickstart](./QUICKSTART.md) | [ Full Documentation](./docs)
 
 ---
 
 ## Roadmap
 
-### ✅ Phase 1: MVP (December 2025)
+###  Phase 1: MVP (December 2025)
 - Core flash loan protocol
 - sBTC token integration
 - 8 receiver contract examples
 - Comprehensive testing (100% success)
 - Testnet deployment (27M sBTC processed)
 
-### 🔄 Phase 2: Mainnet Launch (Q1 2026)
+###  Phase 2: Mainnet Launch (Q1 2026)
 - Security audit
 - Mainnet deployment
 - PoX-4 collateral integration
@@ -280,13 +280,13 @@ clarinet console
 - Dynamic fee market
 - Multi-asset support
 
-### 🌟 Phase 4: DeFi Infrastructure (Q3 2026)
+###  Phase 4: DeFi Infrastructure (Q3 2026)
 - Developer SDK
 - Strategy marketplace
 - Partnership integrations
 - Governance framework
 
-[📋 Detailed Roadmap](./docs/01-project/ROADMAP.md)
+[ Detailed Roadmap](./docs/01-project/ROADMAP.md)
 
 ---
 
@@ -305,7 +305,7 @@ Fees collected per flash mint, scaling with protocol usage
 - **Est. Revenue:** $5K - $50K monthly (at 0.05%)
 - **Growth Potential:** 10-100x with sBTC adoption
 
-[📊 Financial Model](./docs/01-project/FINANCIAL_MODEL.md)
+[ Financial Model](./docs/01-project/FINANCIAL_MODEL.md)
 
 ---
 
@@ -314,13 +314,13 @@ Fees collected per flash mint, scaling with protocol usage
 FlashStack welcomes contributions from the community:
 
 **Ways to Contribute:**
-- 🐛 Report bugs and issues
-- 💡 Suggest new features
-- 🔧 Submit pull requests
-- 📖 Improve documentation
-- 🎨 Create receiver examples
+-  Report bugs and issues
+-  Suggest new features
+-  Submit pull requests
+-  Improve documentation
+-  Create receiver examples
 
-[📚 Contributing Guide](./CONTRIBUTING.md) | [🔒 Security Policy](./SECURITY.md)
+[ Contributing Guide](./CONTRIBUTING.md) | [ Security Policy](./SECURITY.md)
 
 ---
 
@@ -342,14 +342,14 @@ FlashStack welcomes contributions from the community:
 - [Roadmap](./docs/01-project/ROADMAP.md) - Development timeline
 - [SNP Integration](./docs/02-technical/SNP_INTEGRATION.md) - Yield aggregator integration
 
-[📖 Complete Index](./docs/INDEX.md)
+[ Complete Index](./docs/INDEX.md)
 
 ---
 
 ## Community & Links
 
 - **Repository:** [github.com/mattglory/flashstack](https://github.com/mattglory/flashstack)
-- **Developer:** [Matt Glory](https://github.com/mattglory)
+- **Developer:** [Glory Matthew](https://github.com/mattglory)
 - **Testnet Explorer:** [explorer.hiro.so](https://explorer.hiro.so)
 - **Stacks Discord:** [stacks.chat](https://stacks.chat)
 - **Stacks Forum:** [forum.stacks.org](https://forum.stacks.org)
@@ -364,7 +364,7 @@ MIT License - see [LICENSE](./LICENSE) for details
 
 ## About the Developer
 
-**Matt Glory** ([@mattglory](https://github.com/mattglory))
+**Glory Matthew** ([@mattglory](https://github.com/mattglory))
 - Code4STX Program Participant
 - LearnWeb3 Level 34 Master
 - Bitcoin DeFi Infrastructure Builder
@@ -380,12 +380,13 @@ MIT License - see [LICENSE](./LICENSE) for details
 
 Built on Stacks. Secured by Bitcoin.
 
-[🚀 Documentation](./docs) • [💬 Community](https://stacks.chat) • [🐛 Report Issue](https://github.com/mattglory/flashstack/issues)
+[🚀 Documentation](./docs) • [ Community](https://stacks.chat) • [ Report Issue](https://github.com/mattglory/flashstack/issues)
 
 </div>
 
 ---
 
-**Last Updated:** December 19, 2025  
-**Status:** ✅ Testnet Deployed | 🔒 Audit Pending | 🎯 Mainnet Q1 2026  
+**Last Updated:** December 23, 2025  
+**Status:**  Testnet Deployed |  Audit Pending |  Mainnet Q1 2026  
 **Repository:** https://github.com/mattglory/flashstack
+
