@@ -1,0 +1,29 @@
+{
+  "name": "flashstack",
+  "version": "1.0.0",
+  "description": "The first trustless flash loan protocol on Bitcoin L2",
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "check": "clarinet check",
+    "console": "clarinet console",
+    "devnet": "clarinet integrate"
+  },
+  "keywords": [
+    "stacks",
+    "bitcoin",
+    "defi",
+    "flash-loans",
+    "clarity",
+    "sbtc",
+    "leverage"
+  ],
+  "author": "Glory Matthew",
+  "license": "MIT",
+  "devDependencies": {
+    "@hirosystems/clarinet-sdk": "^2.8.0",
+    "@hirosystems/clarinet-sdk-wasm": "^2.8.0",
+    "vitest": "^1.0.0"
+  }
+}

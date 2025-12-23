@@ -1,0 +1,72 @@
+[project]
+name = "flashstack"
+description = "FlashStack - Trustless flash minting of sBTC against locked/stacked STX"
+authors = ["Glory Matthew"]
+telemetry = false
+cache_dir = "./.cache"
+requirements = []
+boot_contracts = []
+
+[contracts.flashstack-core]
+path = "contracts/flashstack-core.clar"
+clarity_version = 2
+epoch = 2.5
+
+[contracts.sbtc-token]
+path = "contracts/sbtc-token.clar"
+clarity_version = 2
+epoch = 2.5
+
+[contracts.flash-receiver-trait]
+path = "contracts/flash-receiver-trait.clar"
+clarity_version = 2
+epoch = 2.5
+
+[contracts.example-arbitrage-receiver]
+path = "contracts/example-arbitrage-receiver.clar"
+clarity_version = 2
+epoch = 2.5
+
+[contracts.test-receiver]
+path = "contracts/test-receiver.clar"
+clarity_version = 2
+epoch = 2.5
+
+[contracts.dex-aggregator-receiver]
+path = "contracts/dex-aggregator-receiver.clar"
+clarity_version = 2
+epoch = 2.5
+
+[contracts.liquidation-receiver]
+path = "contracts/liquidation-receiver.clar"
+clarity_version = 2
+epoch = 2.5
+
+[contracts.collateral-swap-receiver]
+path = "contracts/collateral-swap-receiver.clar"
+clarity_version = 2
+epoch = 2.5
+
+[contracts.multidex-arbitrage-receiver]
+path = "contracts/multidex-arbitrage-receiver.clar"
+clarity_version = 2
+epoch = 2.5
+
+[contracts.yield-optimization-receiver]
+path = "contracts/yield-optimization-receiver.clar"
+clarity_version = 2
+epoch = 2.5
+
+[contracts.leverage-loop-receiver]
+path = "contracts/leverage-loop-receiver.clar"
+clarity_version = 2
+epoch = 2.5
+
+[repl.analysis]
+passes = ["check_checker"]
+
+[repl.analysis.check_checker]
+strict = false
+trusted_sender = false
+trusted_caller = false
+callee_filter = false

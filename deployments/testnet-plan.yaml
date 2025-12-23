@@ -1,0 +1,109 @@
+---
+id: 1
+name: FlashStack Testnet Deployment
+network: testnet
+stacks-node: "https://api.testnet.hiro.so"
+bitcoin-node: "https://blockstream.info/testnet"
+plan:
+  batches:
+    - id: 0
+      transactions:
+        # Core trait and token contracts
+        - contract-publish:
+            contract-name: flash-receiver-trait
+            expected-sender: ST2X1GBHA2WJXREWP231EEQXZ1GDYZEEXYRAD1PA8
+            cost: 5000
+            path: contracts/flash-receiver-trait.clar
+            anchor-block-only: true
+            clarity-version: 2
+        
+        - contract-publish:
+            contract-name: sbtc-token
+            expected-sender: ST2X1GBHA2WJXREWP231EEQXZ1GDYZEEXYRAD1PA8
+            cost: 30000
+            path: contracts/sbtc-token.clar
+            anchor-block-only: true
+            clarity-version: 2
+        
+        # Core FlashStack protocol
+        - contract-publish:
+            contract-name: flashstack-core
+            expected-sender: ST2X1GBHA2WJXREWP231EEQXZ1GDYZEEXYRAD1PA8
+            cost: 50000
+            path: contracts/flashstack-core.clar
+            anchor-block-only: true
+            clarity-version: 2
+        
+        # SNP Integration (PRIORITY)
+        - contract-publish:
+            contract-name: snp-flashstack-receiver
+            expected-sender: ST2X1GBHA2WJXREWP231EEQXZ1GDYZEEXYRAD1PA8
+            cost: 45000
+            path: contracts/snp-flashstack-receiver.clar
+            anchor-block-only: true
+            clarity-version: 2
+        
+        # Example receiver contracts
+        - contract-publish:
+            contract-name: test-receiver
+            expected-sender: ST2X1GBHA2WJXREWP231EEQXZ1GDYZEEXYRAD1PA8
+            cost: 20000
+            path: contracts/test-receiver.clar
+            anchor-block-only: true
+            clarity-version: 2
+        
+        - contract-publish:
+            contract-name: example-arbitrage-receiver
+            expected-sender: ST2X1GBHA2WJXREWP231EEQXZ1GDYZEEXYRAD1PA8
+            cost: 25000
+            path: contracts/example-arbitrage-receiver.clar
+            anchor-block-only: true
+            clarity-version: 2
+        
+        - contract-publish:
+            contract-name: leverage-loop-receiver
+            expected-sender: ST2X1GBHA2WJXREWP231EEQXZ1GDYZEEXYRAD1PA8
+            cost: 40000
+            path: contracts/leverage-loop-receiver.clar
+            anchor-block-only: true
+            clarity-version: 2
+        
+        - contract-publish:
+            contract-name: liquidation-receiver
+            expected-sender: ST2X1GBHA2WJXREWP231EEQXZ1GDYZEEXYRAD1PA8
+            cost: 35000
+            path: contracts/liquidation-receiver.clar
+            anchor-block-only: true
+            clarity-version: 2
+        
+        - contract-publish:
+            contract-name: yield-optimization-receiver
+            expected-sender: ST2X1GBHA2WJXREWP231EEQXZ1GDYZEEXYRAD1PA8
+            cost: 40000
+            path: contracts/yield-optimization-receiver.clar
+            anchor-block-only: true
+            clarity-version: 2
+        
+        - contract-publish:
+            contract-name: collateral-swap-receiver
+            expected-sender: ST2X1GBHA2WJXREWP231EEQXZ1GDYZEEXYRAD1PA8
+            cost: 50000
+            path: contracts/collateral-swap-receiver.clar
+            anchor-block-only: true
+            clarity-version: 2
+        
+        - contract-publish:
+            contract-name: dex-aggregator-receiver
+            expected-sender: ST2X1GBHA2WJXREWP231EEQXZ1GDYZEEXYRAD1PA8
+            cost: 45000
+            path: contracts/dex-aggregator-receiver.clar
+            anchor-block-only: true
+            clarity-version: 2
+        
+        - contract-publish:
+            contract-name: multidex-arbitrage-receiver
+            expected-sender: ST2X1GBHA2WJXREWP231EEQXZ1GDYZEEXYRAD1PA8
+            cost: 50000
+            path: contracts/multidex-arbitrage-receiver.clar
+            anchor-block-only: true
+            clarity-version: 2
