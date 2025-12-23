@@ -1,5 +1,17 @@
 # 🎯 SUPER QUICK COPY-PASTE - Tests 4-8
 
+
+---
+
+> **This document is from December 7, 2025** - when we finished testnet testing.  
+> Check the main [README.md](../../README.md) for current status.
+> 
+> **Where we are now (Dec 23):**  
+> - Repo is public on GitHub
+> - Still on testnet (no audit yet)  
+> - Applying for grants to fund the audit
+
+
 **Link:** https://explorer.hiro.so/sandbox/contract-call/ST2X1GBHA2WJXREWP231EEQXZ1GDYZEEXYRAD1PA8.flashstack-core/flash-mint?chain=testnet
 
 ---

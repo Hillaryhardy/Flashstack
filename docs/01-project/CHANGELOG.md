@@ -40,7 +40,7 @@
 1. **Correct Economics**: Receiver must profit more than fee
 2. **Industry Standard**: Matches Aave (0.09%) and dYdX patterns
 3. **Simpler Integration**: Developers don't need pre-existing balances
-4. **Production Ready**: Real flash loan pattern
+4. **Ready for audit (code works, needs security review)**: Real flash loan pattern
 
 ### Testing Results
 
@@ -60,3 +60,4 @@
 ;; Return: 1,000.5 sBTC to FlashStack
 ;; Keep: Your profit - 0.5 fee
 ```
+

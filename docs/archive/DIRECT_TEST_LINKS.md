@@ -1,5 +1,17 @@
 # 🔗 Direct Links - FlashStack Tests 4-8
 
+
+---
+
+> **This document is from December 7, 2025** - when we finished testnet testing.  
+> Check the main [README.md](../../README.md) for current status.
+> 
+> **Where we are now (Dec 23):**  
+> - Repo is public on GitHub
+> - Still on testnet (no audit yet)  
+> - Applying for grants to fund the audit
+
+
 **All tests use the same link - just different arguments!**
 
 ---

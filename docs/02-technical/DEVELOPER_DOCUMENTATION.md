@@ -13,7 +13,7 @@ FlashStack is now live on Stacks testnet with 100% test success rate!
 **Testnet Deployment:**
 - Deployer Address: `ST2X1GBHA2WJXREWP231EEQXZ1GDYZEEXYRAD1PA8`
 - Network: Stacks Testnet
-- Status: Production Ready
+- Status: Ready for audit (code works, needs security review)
 - Test Results: 8/8 Passed (27M sBTC volume)
 
 **GitHub Repository:**
@@ -938,3 +938,4 @@ Receivers:
 *Documentation maintained by @mattglory*  
 *Last updated: December 7, 2025*  
 *Version: 1.0.0-testnet*
+

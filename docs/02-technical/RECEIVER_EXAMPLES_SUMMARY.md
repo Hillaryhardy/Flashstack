@@ -178,7 +178,7 @@ clarinet console
 ### Step 6: Deploy to Testnet
 Follow the deployment guide in `docs/04-deployment/`
 
-### Step 7: Production Ready
+### Step 7: Ready for audit (code works, needs security review)
 After security audit and thorough testing.
 
 ---
@@ -402,3 +402,4 @@ Start building, start learning, and join us in bringing flash loans to Bitcoin's
 ---
 
 *Remember: Always audit code before mainnet deployment. These examples are educational and require integration with real protocols.*
+

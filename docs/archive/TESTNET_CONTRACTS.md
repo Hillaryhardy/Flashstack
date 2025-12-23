@@ -1,5 +1,17 @@
 # FlashStack Testnet Deployment
 
+
+---
+
+> **This document is from December 7, 2025** - when we finished testnet testing.  
+> Check the main [README.md](../../README.md) for current status.
+> 
+> **Where we are now (Dec 23):**  
+> - Repo is public on GitHub
+> - Still on testnet (no audit yet)  
+> - Applying for grants to fund the audit
+
+
 **Deployment Date**: 2025-12-07 05:54:17  
 **Network**: Stacks Testnet  
 **Deployer**: ST2X1GBHA2WJXREWP231EEQXZ1GDYZEEXYRAD1PA8  

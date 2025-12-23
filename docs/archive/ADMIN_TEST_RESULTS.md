@@ -1,4 +1,16 @@
 # FlashStack Admin Functions - Test Results
+
+
+---
+
+> **This document is from December 7, 2025** - when we finished testnet testing.  
+> Check the main [README.md](../../README.md) for current status.
+> 
+> **Where we are now (Dec 23):**  
+> - Repo is public on GitHub
+> - Still on testnet (no audit yet)  
+> - Applying for grants to fund the audit
+
 **Date**: December 7, 2024
 **Version**: v1.2
 **Status**: ✅ ALL ADMIN TESTS PASSED

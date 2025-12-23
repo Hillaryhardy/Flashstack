@@ -159,7 +159,7 @@ See [QUICKSTART.md](QUICKSTART.md) for detailed guide.
 - SNP yield aggregator (3,800+ LOC)
 - Full-stack blockchain developer
 
-### 3. Production Ready
+### 3. Ready for audit (code works, needs security review)
 - Working code, not concepts
 - Comprehensive tests
 - Complete documentation
@@ -309,3 +309,4 @@ vs **Ethereum Flash Loans**:
 **FlashStack - Making Locked STX Liquid** ⚡
 
 *Production-ready flash loan protocol for Bitcoin L2*
+

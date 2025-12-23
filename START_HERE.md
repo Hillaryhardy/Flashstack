@@ -39,7 +39,7 @@ That's it! This will verify everything works.
 
 ## 📊 Your Project Status
 
-**✅ PRODUCTION READY**
+**✅ Ready for audit (code works, needs security review)**
 
 ```
 FlashStack/
@@ -194,3 +194,4 @@ Then read VERIFICATION.md for next steps.
 **🎉 FlashStack is DONE! Time to ship!** ⚡
 
 *You're about to deploy the first flash loan protocol on Bitcoin L2*
+

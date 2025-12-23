@@ -12,7 +12,7 @@
 #### flashstack-core.clar
 **Lines**: 142
 **Purpose**: Main flash loan protocol
-**Status**: ✅ Production Ready (v1.1)
+**Status**: ✅ Ready for audit (code works, needs security review) (v1.1)
 
 **Key Functions**:
 - `flash-mint` - Execute flash loan
@@ -23,7 +23,7 @@
 #### sbtc-token.clar  
 **Lines**: 86
 **Purpose**: SIP-010 fungible token for testing
-**Status**: ✅ Production Ready
+**Status**: ✅ Ready for audit (code works, needs security review)
 
 **Key Functions**:
 - `mint` - Create new tokens (flash minter only)
@@ -36,7 +36,7 @@
 #### flash-receiver-trait.clar
 **Lines**: 11
 **Purpose**: Interface for flash loan receivers
-**Status**: ✅ Production Ready
+**Status**: ✅ Ready for audit (code works, needs security review)
 
 **Required Function**:
 ```clarity
@@ -56,7 +56,7 @@
 #### example-arbitrage-receiver.clar
 **Lines**: 74
 **Purpose**: Basic arbitrage example
-**Status**: ✅ Production Ready
+**Status**: ✅ Ready for audit (code works, needs security review)
 **Complexity**: ⭐⭐ Beginner-Friendly
 
 **What It Does**:
@@ -384,3 +384,4 @@ clarinet deployments apply -p deployments/default.testnet-plan.yaml
 ---
 
 *This overview is updated as new contracts are added to FlashStack.*
+

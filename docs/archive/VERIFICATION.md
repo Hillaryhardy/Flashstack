@@ -1,5 +1,17 @@
 # ✅ FlashStack Verification Guide
 
+
+---
+
+> **This document is from December 7, 2025** - when we finished testnet testing.  
+> Check the main [README.md](../../README.md) for current status.
+> 
+> **Where we are now (Dec 23):**  
+> - Repo is public on GitHub
+> - Still on testnet (no audit yet)  
+> - Applying for grants to fund the audit
+
+
 ## Quick Verification (Right Now!)
 
 ### Step 1: Verify Contracts Compile
@@ -142,7 +154,7 @@ Your FlashStack project is:
 
 ## Next Steps
 
-### Immediate (This Week)
+### Done (Dec 7-23)
 1. ✅ Verify contracts work (YOU'RE HERE)
 2. 📝 Edit GRANT_APPLICATION.md with your details
 3. 📤 Submit to Code4STX
@@ -220,3 +232,4 @@ If you hit issues:
 **🎉 Your FlashStack protocol is ready to ship!**
 
 *First flash loan protocol on Bitcoin L2 - built in record time!* ⚡
+
