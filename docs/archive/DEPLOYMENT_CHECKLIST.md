@@ -14,7 +14,7 @@
 
 **Status**: Ready to Deploy  
 **Date**: December 7, 2024  
-**Version**: v1.3 Production Ready
+**Version**: v1.3 Ready for audit (code works, needs security review)
 
 ---
 
@@ -290,3 +290,4 @@ After deployment, you'll have:
 **Good luck with your deployment! 🚀**
 
 For questions or issues, refer to TESTNET_DEPLOYMENT.md or create a GitHub issue.
+

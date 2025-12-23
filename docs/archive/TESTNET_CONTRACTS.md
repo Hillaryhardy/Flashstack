@@ -204,7 +204,7 @@ Just deployed FlashStack - the first flash loan protocol for Bitcoin L2! 🚀
 
 Live on @Stacks testnet with 11 contracts and 8 working use cases.
 
-Zero-inflation guaranteed. Atomic transactions. Production ready.
+Zero-inflation guaranteed. Atomic transactions. Ready for audit (code works, needs security review).
 
 #Bitcoin #DeFi #Stacks #FlashLoans
 `
@@ -224,3 +224,4 @@ Contract address: ST2X1GBHA2WJXREWP231EEQXZ1GDYZEEXYRAD1PA8.flashstack-core
 ---
 
 **Deployment Complete!** 🎉
+
