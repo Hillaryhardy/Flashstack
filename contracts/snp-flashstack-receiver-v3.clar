@@ -9,6 +9,7 @@
 (define-constant ERR-VAULT-DEPOSIT-FAILED (err u501))
 (define-constant ERR-VAULT-WITHDRAW-FAILED (err u502))
 (define-constant ERR-INSUFFICIENT-BALANCE (err u503))
+(define-constant ERR-VAULT-LIMIT-REACHED (err u201))
 
 ;; Data vars
 (define-data-var authorized-vaults (list 10 principal) (list))
@@ -19,7 +20,7 @@
   (begin
     (asserts! (is-eq tx-sender (var-get contract-owner)) ERR-NOT-AUTHORIZED)
     (var-set authorized-vaults 
-      (unwrap-panic (as-max-len? (append (var-get authorized-vaults) vault) u10)))
+      (unwrap! (as-max-len? (append (var-get authorized-vaults) vault) u10) ERR-VAULT-LIMIT-REACHED))
     (ok true)
   )
 )

@@ -1,6 +1,10 @@
 ;; FlashStack Core Contract
 ;; Trustless flash minting of sBTC against locked/stacked STX
-;; v1.1 - December 2025 - Fixed fee mechanism
+;; v1.2 - January 2025 - SECURITY HARDENED
+;; - Fixed admin authentication (contract-caller)
+;; - Added receiver whitelist
+;; - Added circuit breaker limits
+;; - Improved error handling
 
 (use-trait flash-receiver .flash-receiver-trait.flash-receiver-trait)
 
@@ -11,6 +15,9 @@
 (define-constant ERR-CALLBACK-FAILED (err u103))
 (define-constant ERR-INVALID-AMOUNT (err u104))
 (define-constant ERR-PAUSED (err u105))
+(define-constant ERR-RECEIVER-NOT-APPROVED (err u106))
+(define-constant ERR-LOAN-TOO-LARGE (err u107))
+(define-constant ERR-BLOCK-LIMIT-EXCEEDED (err u108))
 
 ;; Data Variables
 (define-data-var flash-fee-basis-points uint u5)
@@ -20,6 +27,16 @@
 (define-data-var total-fees-collected uint u0)
 (define-data-var paused bool false)
 
+;; Circuit Breaker Limits
+(define-data-var max-single-loan uint u50000000000000) ;; 50,000 sBTC default
+(define-data-var max-block-volume uint u100000000000000) ;; 100,000 sBTC per block
+
+;; Whitelist for approved receiver contracts
+(define-map approved-receivers principal bool)
+
+;; Per-block volume tracking
+(define-map block-loan-volume uint uint)
+
 ;; Collateral ratio: 300% = 3x leverage max
 (define-constant MIN-COLLATERAL-RATIO u300)
 
@@ -28,7 +45,7 @@
   u1000000000000
 )
 
-;; Main flash mint function - FIXED FEE MECHANISM
+;; Main flash mint function - SECURITY HARDENED
 (define-public (flash-mint (amount uint) (receiver <flash-receiver>))
   (let (
     (borrower tx-sender)
@@ -38,9 +55,33 @@
     (fee (/ (* amount (var-get flash-fee-basis-points)) u10000))
     (total-owed (+ amount fee))
   )
+    ;; ===== SECURITY CHECKS =====
+    
+    ;; Circuit breaker check
     (asserts! (not (var-get paused)) ERR-PAUSED)
+    
+    ;; Input validation
     (asserts! (> amount u0) ERR-INVALID-AMOUNT)
+    
+    ;; SECURITY: Verify receiver is whitelisted
+    (asserts! (default-to false (map-get? approved-receivers receiver-principal)) ERR-RECEIVER-NOT-APPROVED)
+    
+    ;; Circuit breaker: Check single loan limit
+    (asserts! (<= amount (var-get max-single-loan)) ERR-LOAN-TOO-LARGE)
+    
+    ;; Circuit breaker: Check block volume limit
+    (let (
+      (current-block-volume (default-to u0 (map-get? block-loan-volume block-height)))
+      (new-block-volume (+ current-block-volume amount))
+    )
+      (asserts! (<= new-block-volume (var-get max-block-volume)) ERR-BLOCK-LIMIT-EXCEEDED)
+      (map-set block-loan-volume block-height new-block-volume)
+    )
+    
+    ;; Collateral check
     (asserts! (>= locked-stx min-required) ERR-NOT-ENOUGH-COLLATERAL)
+    
+    ;; ===== FLASH LOAN EXECUTION =====
     
     (let (
       (balance-before (unwrap! (as-contract (contract-call? .sbtc-token get-balance tx-sender)) ERR-REPAY-FAILED))
@@ -109,10 +150,26 @@
   (ok (var-get paused))
 )
 
-;; Admin Functions
+(define-read-only (is-approved-receiver (receiver principal))
+  (ok (default-to false (map-get? approved-receivers receiver)))
+)
+
+(define-read-only (get-block-volume (block uint))
+  (ok (default-to u0 (map-get? block-loan-volume block)))
+)
+
+(define-read-only (get-max-single-loan)
+  (ok (var-get max-single-loan))
+)
+
+(define-read-only (get-max-block-volume)
+  (ok (var-get max-block-volume))
+)
+
+;; Admin Functions - SECURITY: Changed to contract-caller
 (define-public (set-fee (new-fee-bp uint))
   (begin
-    (asserts! (is-eq tx-sender (var-get admin)) ERR-UNAUTHORIZED)
+    (asserts! (is-eq contract-caller (var-get admin)) ERR-UNAUTHORIZED)
     (asserts! (<= new-fee-bp u100) ERR-UNAUTHORIZED)
     (ok (var-set flash-fee-basis-points new-fee-bp))
   )
@@ -120,22 +177,54 @@
 
 (define-public (set-admin (new-admin principal))
   (begin
-    (asserts! (is-eq tx-sender (var-get admin)) ERR-UNAUTHORIZED)
+    (asserts! (is-eq contract-caller (var-get admin)) ERR-UNAUTHORIZED)
     (ok (var-set admin new-admin))
   )
 )
 
 (define-public (pause)
   (begin
-    (asserts! (is-eq tx-sender (var-get admin)) ERR-UNAUTHORIZED)
+    (asserts! (is-eq contract-caller (var-get admin)) ERR-UNAUTHORIZED)
     (ok (var-set paused true))
   )
 )
 
 (define-public (unpause)
   (begin
-    (asserts! (is-eq tx-sender (var-get admin)) ERR-UNAUTHORIZED)
+    (asserts! (is-eq contract-caller (var-get admin)) ERR-UNAUTHORIZED)
     (ok (var-set paused false))
+  )
+)
+
+;; Whitelist Management - SECURITY: New functions
+(define-public (add-approved-receiver (receiver principal))
+  (begin
+    (asserts! (is-eq contract-caller (var-get admin)) ERR-UNAUTHORIZED)
+    (ok (map-set approved-receivers receiver true))
+  )
+)
+
+(define-public (remove-approved-receiver (receiver principal))
+  (begin
+    (asserts! (is-eq contract-caller (var-get admin)) ERR-UNAUTHORIZED)
+    (ok (map-delete approved-receivers receiver))
+  )
+)
+
+;; Circuit Breaker Management
+(define-public (set-max-single-loan (new-limit uint))
+  (begin
+    (asserts! (is-eq contract-caller (var-get admin)) ERR-UNAUTHORIZED)
+    (asserts! (> new-limit u0) ERR-INVALID-AMOUNT)
+    (ok (var-set max-single-loan new-limit))
+  )
+)
+
+(define-public (set-max-block-volume (new-limit uint))
+  (begin
+    (asserts! (is-eq contract-caller (var-get admin)) ERR-UNAUTHORIZED)
+    (asserts! (> new-limit u0) ERR-INVALID-AMOUNT)
+    (ok (var-set max-block-volume new-limit))
   )
 )
 

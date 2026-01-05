@@ -1,19 +1,22 @@
-;; Dynamic Test Receiver - Queries protocol for current fee
-(impl-trait .flash-receiver-trait.flash-receiver-trait)
+;; Simple test receiver for FlashStack
+;; Just borrows, does nothing, and repays
+
+(define-constant ERR-REPAYMENT-FAILED (err u200))
+(define-constant ERR-FEE-FETCH-FAILED (err u201))
 
 (define-public (execute-flash (amount uint) (borrower principal))
   (let (
     ;; Query the protocol for current fee rate
-    (fee-bp (unwrap-panic (contract-call? .flashstack-core get-fee-basis-points)))
+    (fee-bp (unwrap! (contract-call? .flashstack-core get-fee-basis-points) ERR-FEE-FETCH-FAILED))
     (fee (/ (* amount fee-bp) u10000))
     (total-owed (+ amount fee))
   )
-    ;; Transfer the borrowed amount + fee back to flashstack-core
-    ;; Use as-contract because the tokens are in this contract's balance
-    (as-contract (contract-call? .sbtc-token transfer 
-      total-owed 
-      tx-sender 
-      .flashstack-core 
-      none))
+    ;; Simply repay by transferring tokens back
+    (as-contract (contract-call? .sbtc-token transfer
+      total-owed
+      tx-sender
+      .flashstack-core
+      none
+    ))
   )
 )
