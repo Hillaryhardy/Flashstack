@@ -3,7 +3,7 @@
 **Open Flash-Loan Infrastructure for Bitcoin Layer 2**
 
 [![Status](https://img.shields.io/badge/Status-Mainnet%20Live-brightgreen)]()
-[![Tests](https://img.shields.io/badge/Tests-82%20Passing-success)]()
+[![Tests](https://img.shields.io/badge/Tests-91%20Passing-success)]()
 [![Clarity](https://img.shields.io/badge/Clarity-3-blue)]()
 [![Live](https://img.shields.io/badge/Live-flashstack.vercel.app-blue)](https://flashstack.vercel.app)
 [![License](https://img.shields.io/badge/License-MIT-yellow)]()
@@ -126,7 +126,7 @@ LP shares are yield-bearing collateral. The `flashstack-pool-oracle` exposes `ge
 git clone https://github.com/mattglory/Flashstack.git
 cd flashstack
 npm install
-npm test          # 82 tests passing
+npm test          # 91 tests passing
 npm run check     # Clarinet contract verification
 ```
 
@@ -256,7 +256,7 @@ The canonical sBTC implementation uses a reserve invariant model (not mint/burn)
 ## Testing
 
 ```bash
-npm test           # 82 tests
+npm test           # 91 tests
 npm run test:watch # Watch mode
 ```
 
@@ -281,7 +281,7 @@ flashstack/
     velar-sbtc-arb-receiver.clar    # Velar sBTC arb receiver
     zest-liquidation-receiver.clar  # Zest zero-capital liquidator (4 modes)
     alex-arb-receiver.clar          # ALEX STX/ALEX arb receiver
-  tests/                            # 82 Vitest + Clarinet simnet tests
+  tests/                            # 91 Vitest + Clarinet simnet tests
   scripts/                          # Deploy + monitor scripts
   docs/                             # Guides and integration specs
     TESTING_GUIDE_STX.md
@@ -304,7 +304,7 @@ flashstack/
 
 - [x] Security hardening — all audit findings resolved
 - [x] Mainnet deployment — STX + canonical sBTC flash loan engines
-- [x] 82-test suite (Vitest + Clarinet simnet)
+- [x] 91-test suite (Vitest + Clarinet simnet), incl. the deployed reserve-model core
 - [x] Production frontend — STX + sBTC flash loans, wallet connect, live stats
 - [x] LP pool — external liquidity providers earn STX yield
 - [x] Bitflow arb receiver — live DEX integration proven on mainnet

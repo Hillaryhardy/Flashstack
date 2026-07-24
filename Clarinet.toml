@@ -62,6 +62,29 @@ path = "contracts/leverage-loop-receiver.clar"
 clarity_version = 2
 epoch = 2.5
 
+# --- Tests for the DEPLOYED reserve-model core (flashstack-stx-core) ---
+# flashstack-stx-core here is a localized copy of the immutable mainnet contract
+# (SP20XD46...flashstack-stx-core); logic is byte-identical, trait ref localized for simnet.
+[contracts.stx-flash-receiver-trait]
+path = "contracts/stx-flash-receiver-trait.clar"
+clarity_version = 3
+epoch = "3.0"
+
+[contracts.flashstack-stx-core]
+path = "contracts/test/flashstack-stx-core.clar"
+clarity_version = 3
+epoch = "3.0"
+
+[contracts.test-receiver-good]
+path = "contracts/test/test-receiver-good.clar"
+clarity_version = 3
+epoch = "3.0"
+
+[contracts.test-receiver-bad]
+path = "contracts/test/test-receiver-bad.clar"
+clarity_version = 3
+epoch = "3.0"
+
 [repl.analysis]
 passes = ["check_checker"]
 
