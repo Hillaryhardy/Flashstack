@@ -108,6 +108,24 @@ path = "contracts/test/test-sbtc-receiver-bad.clar"
 clarity_version = 3
 epoch = "3.0"
 
+# --- Tests for the DEPLOYED LP pool + collateral oracle ---
+# Localized copies of the immutable mainnet contracts (trait ref / pool ref
+# pointed local for simnet).
+[contracts.flashstack-stx-pool]
+path = "contracts/test/flashstack-stx-pool.clar"
+clarity_version = 3
+epoch = "3.0"
+
+[contracts.flashstack-pool-oracle]
+path = "contracts/test/flashstack-pool-oracle.clar"
+clarity_version = 3
+epoch = "3.0"
+
+[contracts.test-pool-receiver-good]
+path = "contracts/test/test-pool-receiver-good.clar"
+clarity_version = 3
+epoch = "3.0"
+
 [repl.analysis]
 passes = ["check_checker"]
 
