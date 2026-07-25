@@ -22,17 +22,6 @@ export const SBTC_TOKEN_NAME = "sbtc-token";
 export const POOL_CONTRACT_ADDRESS = "SPR9PQANV6XHSDNRAX2GNKCA5Z1KH61961KE0BYG";
 export const POOL_CONTRACT_NAME = "flashstack-stx-pool-v2";
 
-export const RECEIVER_CONTRACTS = [
-  { name: "test-receiver", label: "Test Receiver", description: "Basic flash loan test", address: CONTRACT_ADDRESS },
-  { name: "example-arbitrage-receiver", label: "Arbitrage", description: "DEX arbitrage strategy", address: CONTRACT_ADDRESS },
-  { name: "liquidation-receiver", label: "Liquidation", description: "Liquidation bot", address: CONTRACT_ADDRESS },
-  { name: "leverage-loop-receiver", label: "Leverage Loop", description: "Leveraged positions", address: CONTRACT_ADDRESS },
-  { name: "collateral-swap-receiver", label: "Collateral Swap", description: "Atomic collateral swap", address: CONTRACT_ADDRESS },
-  { name: "yield-optimization-receiver", label: "Yield Optimizer", description: "Auto-compounding", address: CONTRACT_ADDRESS },
-  { name: "dex-aggregator-receiver", label: "DEX Aggregator", description: "Multi-DEX routing", address: CONTRACT_ADDRESS },
-  { name: "snp-flashstack-receiver-v3", label: "SNP Integration", description: "SNP leveraged yield", address: CONTRACT_ADDRESS },
-];
-
 export const STX_RECEIVER_CONTRACTS = [
   { name: "stx-test-receiver", label: "STX Test Receiver", description: "Borrow STX, repay principal + fee", address: STX_CONTRACT_ADDRESS },
   { name: "bitflow-arb-receiver", label: "Bitflow Arbitrage", description: "STX/stSTX round-trip on Bitflow stableswap", address: STX_CONTRACT_ADDRESS },
