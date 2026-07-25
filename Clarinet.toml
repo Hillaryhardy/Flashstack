@@ -126,6 +126,22 @@ path = "contracts/test/test-pool-receiver-good.clar"
 clarity_version = 3
 epoch = "3.0"
 
+[contracts.flashstack-sbtc-pool]
+path = "contracts/test/flashstack-sbtc-pool.clar"
+clarity_version = 3
+epoch = "3.0"
+
+[contracts.test-sbtc-pool-receiver-good]
+path = "contracts/test/test-sbtc-pool-receiver-good.clar"
+clarity_version = 3
+epoch = "3.0"
+
+# --- F-1 fix: hardened pool v2 (virtual shares/assets) ---
+[contracts.flashstack-stx-pool-v2]
+path = "contracts/test/flashstack-stx-pool-v2.clar"
+clarity_version = 3
+epoch = "3.0"
+
 [repl.analysis]
 passes = ["check_checker"]
 
