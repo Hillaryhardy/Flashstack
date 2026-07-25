@@ -27,9 +27,11 @@ const EXPLORER = "https://explorer.hiro.so/txid";
 const COMPROMISED = "SP20XD46NGAX05ZQZDKFYCCX49A3852BQABNP0VG5"; // exposed key — do NOT deploy here
 
 // Deploy the DEPLOYABLE sources (mainnet trait refs), not the localized test copies.
+// Order matters: the oracle references the STX pool, so the pool deploys first.
 const CONTRACTS = [
   { name: "flashstack-stx-pool-v2",  path: "contracts/flashstack-stx-pool-v2.clar"  },
   { name: "flashstack-sbtc-pool-v2", path: "contracts/flashstack-sbtc-pool-v2.clar" },
+  { name: "flashstack-pool-oracle-v2", path: "contracts/flashstack-pool-oracle-v2.clar" },
 ];
 
 const MNEMONIC = process.env.DEPLOYER_MNEMONIC;
