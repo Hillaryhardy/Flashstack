@@ -142,6 +142,11 @@ path = "contracts/test/flashstack-stx-pool-v2.clar"
 clarity_version = 3
 epoch = "3.0"
 
+[contracts.flashstack-sbtc-pool-v2]
+path = "contracts/test/flashstack-sbtc-pool-v2.clar"
+clarity_version = 3
+epoch = "3.0"
+
 [repl.analysis]
 passes = ["check_checker"]
 
