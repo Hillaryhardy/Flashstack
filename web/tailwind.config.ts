@@ -8,23 +8,24 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        // Stacks brand purple (#5546FF)
         brand: {
-          50: "#eff6ff",
-          100: "#dbeafe",
-          200: "#bfdbfe",
-          300: "#93c5fd",
-          400: "#60a5fa",
-          500: "#3b82f6",
-          600: "#2563eb",
-          700: "#1d4ed8",
-          800: "#1e40af",
-          900: "#1e3a8a",
+          50: "#eef0ff",
+          100: "#e0e2ff",
+          200: "#c6c9ff",
+          300: "#a3a4ff",
+          400: "#837dff",
+          500: "#5546ff",
+          600: "#4a38e6",
+          700: "#3d2ec0",
+          800: "#33299a",
+          900: "#2c277a",
         },
         surface: {
-          DEFAULT: "#0f1118",
-          card: "#161925",
-          hover: "#1c2033",
-          border: "#2a2f45",
+          DEFAULT: "#0d0e14",
+          card: "#15151f",
+          hover: "#1d1c2b",
+          border: "#2a2840",
         },
       },
     },

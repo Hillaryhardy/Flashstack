@@ -6,7 +6,7 @@ export type NetworkType = "testnet" | "mainnet";
 export const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS ?? "SP3TGRVG7DKGFVRTTVGGS60S59R916FWB4DAB9STZ";
 export const CONTRACT_NAME = "flashstack-core";
 
-// STX flash loan core (v2 — mainnet, active deployer)
+// STX flash loan core (reserve engine) — mainnet
 export const STX_CONTRACT_ADDRESS = "SP20XD46NGAX05ZQZDKFYCCX49A3852BQABNP0VG5";
 export const STX_CONTRACT_NAME = "flashstack-stx-core";
 
@@ -16,9 +16,11 @@ export const SBTC_CONTRACT_NAME = "flashstack-sbtc-core";
 export const SBTC_TOKEN_ADDRESS = "SM3VDXK3WZZSA84XXFKAFAF15NNZX32CTSG82JFQ4";
 export const SBTC_TOKEN_NAME = "sbtc-token";
 
-// LP Pool — external depositors earn yield from flash loan fees
-export const POOL_CONTRACT_ADDRESS = "SP20XD46NGAX05ZQZDKFYCCX49A3852BQABNP0VG5";
-export const POOL_CONTRACT_NAME = "flashstack-stx-pool";
+// LP Pool — external depositors earn yield from flash loan fees.
+// v2 (hardened, virtual shares/assets) under the secure post-rotation wallet.
+// The v1 pool (SP20XD46…flashstack-stx-pool) is deprecated and paused.
+export const POOL_CONTRACT_ADDRESS = "SPR9PQANV6XHSDNRAX2GNKCA5Z1KH61961KE0BYG";
+export const POOL_CONTRACT_NAME = "flashstack-stx-pool-v2";
 
 export const RECEIVER_CONTRACTS = [
   { name: "test-receiver", label: "Test Receiver", description: "Basic flash loan test", address: CONTRACT_ADDRESS },
