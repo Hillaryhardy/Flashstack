@@ -46,11 +46,18 @@ export function StacksProvider({ children }: { children: React.ReactNode }) {
   }, [hydrateFromStorage]);
 
   const connectWallet = useCallback(async () => {
-    try {
-      await connect();
+    // forceWalletSelect: always open the wallet picker (a plain connect() defaults
+    // to a previously-selected provider, so a first-time connect never prompts).
+    const result = await connect({ forceWalletSelect: true });
+    // Set state straight from the response (more reliable than storage timing).
+    const stx =
+      result?.addresses?.find((a) => a.symbol === "STX") ??
+      result?.addresses?.find((a) => a.address?.startsWith("S"));
+    if (stx?.address) {
+      setStxAddress(stx.address);
+      setIsWalletConnected(true);
+    } else {
       hydrateFromStorage();
-    } catch (err) {
-      console.error("Wallet connection failed:", err);
     }
   }, [hydrateFromStorage]);
 
