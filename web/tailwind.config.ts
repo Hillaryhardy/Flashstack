@@ -8,24 +8,24 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Stacks brand purple (#5546FF)
+        // Bitcoin orange (#F7931A)
         brand: {
-          50: "#eef0ff",
-          100: "#e0e2ff",
-          200: "#c6c9ff",
-          300: "#a3a4ff",
-          400: "#837dff",
-          500: "#5546ff",
-          600: "#4a38e6",
-          700: "#3d2ec0",
-          800: "#33299a",
-          900: "#2c277a",
+          50: "#fff7ed",
+          100: "#ffedd5",
+          200: "#fed7aa",
+          300: "#fdba74",
+          400: "#fba53c",
+          500: "#f7931a",
+          600: "#e07d0e",
+          700: "#b8620b",
+          800: "#8f4d0f",
+          900: "#743f10",
         },
         surface: {
-          DEFAULT: "#0d0e14",
-          card: "#15151f",
-          hover: "#1d1c2b",
-          border: "#2a2840",
+          DEFAULT: "#0c0a08",
+          card: "#151109",
+          hover: "#1d1710",
+          border: "#2a2016",
         },
       },
     },

@@ -74,7 +74,7 @@ export default function LandingPage() {
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-black tracking-tight mb-6 leading-none">
             Flash Loans on
             <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-400 to-blue-300">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-300 to-brand-500">
               Bitcoin Layer 2
             </span>
           </h1>

@@ -1,4 +1,18 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" fill="none">
-  <rect width="40" height="40" rx="8" fill="#1e3a8a"/>
-  <path d="M22 6L12 22h8l-2 12 10-16h-8l2-12z" fill="#60a5fa" stroke="#93c5fd" stroke-width="1"/>
+  <defs>
+    <linearGradient id="fs-bg" x1="4" y1="2" x2="36" y2="38" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1c1408"/>
+      <stop offset="1" stop-color="#0c0906"/>
+    </linearGradient>
+    <linearGradient id="fs-bolt" x1="14" y1="5" x2="26" y2="35" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FEC168"/>
+      <stop offset="0.45" stop-color="#F7931A"/>
+      <stop offset="1" stop-color="#DB7B0C"/>
+    </linearGradient>
+  </defs>
+  <rect width="40" height="40" rx="9" fill="url(#fs-bg)"/>
+  <rect x="0.75" y="0.75" width="38.5" height="38.5" rx="8.25" stroke="#F7931A" stroke-opacity="0.35"/>
+  <path d="M22.4 5.5 L11.6 22.2 h7.2 l-2.2 12.3 L28.4 17.4 h-7.2 z"
+        fill="url(#fs-bolt)" stroke="#FEC168" stroke-opacity="0.5" stroke-width="0.6"
+        stroke-linejoin="round"/>
 </svg>
