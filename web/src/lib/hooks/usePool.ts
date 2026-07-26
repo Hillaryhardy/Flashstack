@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useStacks } from "./useStacks";
-import { POOL_CONTRACT_ADDRESS, POOL_CONTRACT_NAME } from "@/lib/stacks/config";
+import { LP_POOLS, PoolAsset } from "@/lib/stacks/config";
 import { fetchPoolStats, fetchPoolUserPosition } from "@/lib/stacks/pool-client";
 import type { PoolStats, PoolUserPosition } from "@/lib/stacks/types";
 
@@ -16,7 +16,8 @@ interface TxState {
 
 const IDLE: TxState = { status: "idle", txId: null, error: null };
 
-export function usePool() {
+export function usePool(asset: PoolAsset) {
+  const pool = LP_POOLS[asset];
   const { isWalletConnected, stxAddress: address, network } = useStacks();
 
   const [stats, setStats] = useState<PoolStats | null>(null);
@@ -28,18 +29,18 @@ export function usePool() {
   // Fetch pool stats + user position
   const refresh = useCallback(async () => {
     try {
-      const s = await fetchPoolStats(network);
+      const s = await fetchPoolStats(asset, network);
       setStats(s);
     } catch { /* ignore */ }
     setLoadingStats(false);
 
     if (isWalletConnected && address) {
       try {
-        const p = await fetchPoolUserPosition(address, network);
+        const p = await fetchPoolUserPosition(asset, address, network);
         setPosition(p);
       } catch { /* ignore */ }
     }
-  }, [isWalletConnected, address, network]);
+  }, [asset, isWalletConnected, address, network]);
 
   useEffect(() => {
     refresh();
@@ -59,7 +60,7 @@ export function usePool() {
       const { Cl, cvToHex } = await import("@stacks/transactions");
 
       const result = await request("stx_callContract", {
-        contract: `${POOL_CONTRACT_ADDRESS}.${POOL_CONTRACT_NAME}`,
+        contract: `${pool.address}.${pool.name}`,
         functionName: "deposit",
         functionArgs: [cvToHex(Cl.uint(BigInt(amountMicroStx)))],
         postConditionMode: "allow",
@@ -71,7 +72,7 @@ export function usePool() {
     } catch (err) {
       setDeposit({ status: "error", txId: null, error: err instanceof Error ? err.message : "Failed" });
     }
-  }, [isWalletConnected]);
+  }, [isWalletConnected, pool]);
 
   // Withdraw shares from pool
   const executeWithdraw = useCallback(async (shares: string) => {
@@ -85,7 +86,7 @@ export function usePool() {
       const { Cl, cvToHex } = await import("@stacks/transactions");
 
       const result = await request("stx_callContract", {
-        contract: `${POOL_CONTRACT_ADDRESS}.${POOL_CONTRACT_NAME}`,
+        contract: `${pool.address}.${pool.name}`,
         functionName: "withdraw",
         functionArgs: [cvToHex(Cl.uint(BigInt(shares)))],
         postConditionMode: "allow",
@@ -97,7 +98,7 @@ export function usePool() {
     } catch (err) {
       setWithdraw({ status: "error", txId: null, error: err instanceof Error ? err.message : "Failed" });
     }
-  }, [isWalletConnected]);
+  }, [isWalletConnected, pool]);
 
   return {
     stats,

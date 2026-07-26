@@ -18,9 +18,40 @@ export const SBTC_TOKEN_NAME = "sbtc-token";
 
 // LP Pool — external depositors earn yield from flash loan fees.
 // v2 (hardened, virtual shares/assets) under the secure post-rotation wallet.
-// The v1 pool (SP20XD46…flashstack-stx-pool) is deprecated and paused.
+// The v1 pools (SP20XD46…) are deprecated and paused.
 export const POOL_CONTRACT_ADDRESS = "SPR9PQANV6XHSDNRAX2GNKCA5Z1KH61961KE0BYG";
 export const POOL_CONTRACT_NAME = "flashstack-stx-pool-v2";
+
+// Multi-asset LP pool registry. Add a new asset here (e.g. USDCx) once its
+// hardened pool is deployed — the UI is asset-driven, no per-asset code.
+const POOL_DEPLOYER = "SPR9PQANV6XHSDNRAX2GNKCA5Z1KH61961KE0BYG";
+
+export interface LpPoolMeta {
+  symbol: string;
+  decimals: number;
+  sharePrecision: bigint;
+  address: string;
+  name: string;
+  /** read-only fn returning an LP's asset value */
+  valueFn: string;
+  /** true if valueFn returns (ok uint) rather than a bare uint */
+  valueWrapped: boolean;
+}
+
+export const LP_POOLS = {
+  stx: {
+    symbol: "STX", decimals: 6, sharePrecision: 1_000_000n,
+    address: POOL_DEPLOYER, name: "flashstack-stx-pool-v2",
+    valueFn: "get-stx-value", valueWrapped: false,
+  },
+  sbtc: {
+    symbol: "sBTC", decimals: 8, sharePrecision: 100_000_000n,
+    address: POOL_DEPLOYER, name: "flashstack-sbtc-pool-v2",
+    valueFn: "get-lp-value", valueWrapped: true,
+  },
+} satisfies Record<string, LpPoolMeta>;
+
+export type PoolAsset = keyof typeof LP_POOLS;
 
 export const STX_RECEIVER_CONTRACTS = [
   { name: "stx-test-receiver", label: "STX Test Receiver", description: "Borrow STX, repay principal + fee", address: STX_CONTRACT_ADDRESS },

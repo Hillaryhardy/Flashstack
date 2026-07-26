@@ -3,27 +3,29 @@ import {
   cvToJSON,
   standardPrincipalCV,
 } from "@stacks/transactions";
-import { POOL_CONTRACT_ADDRESS, POOL_CONTRACT_NAME, getNetwork, NetworkType } from "./config";
+import { LP_POOLS, PoolAsset, getNetwork, NetworkType } from "./config";
 import type { PoolStats, PoolUserPosition } from "./types";
 
 async function callReadOnly(
+  asset: PoolAsset,
   functionName: string,
   functionArgs: Parameters<typeof fetchCallReadOnlyFunction>[0]["functionArgs"],
   network: NetworkType
 ) {
+  const pool = LP_POOLS[asset];
   const result = await fetchCallReadOnlyFunction({
-    contractAddress: POOL_CONTRACT_ADDRESS,
-    contractName: POOL_CONTRACT_NAME,
+    contractAddress: pool.address,
+    contractName: pool.name,
     functionName,
     functionArgs,
     network: getNetwork(network),
-    senderAddress: POOL_CONTRACT_ADDRESS,
+    senderAddress: pool.address,
   });
   return cvToJSON(result);
 }
 
-export async function fetchPoolStats(network: NetworkType): Promise<PoolStats> {
-  const json = await callReadOnly("get-stats", [], network);
+export async function fetchPoolStats(asset: PoolAsset, network: NetworkType): Promise<PoolStats> {
+  const json = await callReadOnly(asset, "get-stats", [], network);
   const v = json.value.value;
   return {
     poolBalance:     BigInt(v["pool-balance"].value),
@@ -38,15 +40,19 @@ export async function fetchPoolStats(network: NetworkType): Promise<PoolStats> {
 }
 
 export async function fetchPoolUserPosition(
+  asset: PoolAsset,
   address: string,
   network: NetworkType
 ): Promise<PoolUserPosition> {
+  const pool = LP_POOLS[asset];
   const [sharesJson, valueJson] = await Promise.all([
-    callReadOnly("get-shares", [standardPrincipalCV(address)], network),
-    callReadOnly("get-stx-value", [standardPrincipalCV(address)], network),
+    callReadOnly(asset, "get-shares", [standardPrincipalCV(address)], network),
+    callReadOnly(asset, pool.valueFn, [standardPrincipalCV(address)], network),
   ]);
+  // get-shares returns a bare uint; the value fn may return (ok uint).
+  const value = pool.valueWrapped ? BigInt(valueJson.value.value) : BigInt(valueJson.value);
   return {
     shares:   BigInt(sharesJson.value),
-    stxValue: BigInt(valueJson.value),
+    stxValue: value,
   };
 }
