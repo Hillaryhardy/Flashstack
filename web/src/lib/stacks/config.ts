@@ -2,10 +2,6 @@ import { STACKS_TESTNET, STACKS_MAINNET, StacksNetwork } from "@stacks/network";
 
 export type NetworkType = "testnet" | "mainnet";
 
-// sBTC flash loan core (v1 — sBTC testnet/devnet contracts)
-export const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS ?? "SP3TGRVG7DKGFVRTTVGGS60S59R916FWB4DAB9STZ";
-export const CONTRACT_NAME = "flashstack-core";
-
 // STX flash loan core (reserve engine) — mainnet
 export const STX_CONTRACT_ADDRESS = "SP20XD46NGAX05ZQZDKFYCCX49A3852BQABNP0VG5";
 export const STX_CONTRACT_NAME = "flashstack-stx-core";
