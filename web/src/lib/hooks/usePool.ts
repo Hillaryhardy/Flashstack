@@ -54,16 +54,27 @@ export function usePool(asset: PoolAsset) {
       setDeposit({ status: "error", txId: null, error: "Wallet not connected" });
       return;
     }
+    if (!address) {
+      setDeposit({ status: "error", txId: null, error: "Wallet address unavailable" });
+      return;
+    }
     setDeposit({ status: "pending", txId: null, error: null });
     try {
       const { request } = await import("@stacks/connect");
-      const { Cl, cvToHex } = await import("@stacks/transactions");
+      const { Cl, cvToHex, Pc } = await import("@stacks/transactions");
+
+      // Bound the deposit: the wallet enforces that exactly `amount` leaves the user.
+      const amt = BigInt(amountMicroStx);
+      const postCondition = pool.nativeStx
+        ? Pc.principal(address).willSendEq(amt).ustx()
+        : Pc.principal(address).willSendEq(amt).ft(pool.tokenContract! as `${string}.${string}`, pool.tokenName!);
 
       const result = await request("stx_callContract", {
         contract: `${pool.address}.${pool.name}`,
         functionName: "deposit",
-        functionArgs: [cvToHex(Cl.uint(BigInt(amountMicroStx)))],
-        postConditionMode: "allow",
+        functionArgs: [cvToHex(Cl.uint(amt))],
+        postConditions: [postCondition],
+        postConditionMode: "deny",
       });
 
       const txId = typeof result === "object" && result !== null && "txid" in result
@@ -72,7 +83,7 @@ export function usePool(asset: PoolAsset) {
     } catch (err) {
       setDeposit({ status: "error", txId: null, error: err instanceof Error ? err.message : "Failed" });
     }
-  }, [isWalletConnected, pool]);
+  }, [isWalletConnected, pool, address]);
 
   // Withdraw shares from pool
   const executeWithdraw = useCallback(async (shares: string) => {
@@ -98,7 +109,7 @@ export function usePool(asset: PoolAsset) {
     } catch (err) {
       setWithdraw({ status: "error", txId: null, error: err instanceof Error ? err.message : "Failed" });
     }
-  }, [isWalletConnected, pool]);
+  }, [isWalletConnected, pool, address]);
 
   return {
     stats,

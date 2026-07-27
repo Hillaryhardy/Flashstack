@@ -32,18 +32,25 @@ export interface LpPoolMeta {
   valueFn: string;
   /** true if valueFn returns (ok uint) rather than a bare uint */
   valueWrapped: boolean;
+  /** native STX vs a SIP-010 token — decides the deposit post-condition */
+  nativeStx: boolean;
+  /** SIP-010 contract id + asset name, for the fungible deposit post-condition */
+  tokenContract?: string;
+  tokenName?: string;
 }
 
 export const LP_POOLS = {
   stx: {
     symbol: "STX", decimals: 6, sharePrecision: 1_000_000n,
     address: POOL_DEPLOYER, name: "flashstack-stx-pool-v2",
-    valueFn: "get-stx-value", valueWrapped: false,
+    valueFn: "get-stx-value", valueWrapped: false, nativeStx: true,
   },
   sbtc: {
     symbol: "sBTC", decimals: 8, sharePrecision: 100_000_000n,
     address: POOL_DEPLOYER, name: "flashstack-sbtc-pool-v2",
-    valueFn: "get-lp-value", valueWrapped: true,
+    valueFn: "get-lp-value", valueWrapped: true, nativeStx: false,
+    tokenContract: "SM3VDXK3WZZSA84XXFKAFAF15NNZX32CTSG82JFQ4.sbtc-token",
+    tokenName: "sbtc-token",
   },
 } satisfies Record<string, LpPoolMeta>;
 
