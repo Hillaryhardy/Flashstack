@@ -85,8 +85,9 @@ export function usePool(asset: PoolAsset) {
     }
   }, [isWalletConnected, pool, address]);
 
-  // Withdraw shares from pool
-  const executeWithdraw = useCallback(async (shares: string) => {
+  // Withdraw shares from pool. minReceive = the minimum the pool must send back
+  // (in the asset's base units), enforced by a deny-mode post-condition.
+  const executeWithdraw = useCallback(async (shares: string, minReceive: string) => {
     if (!isWalletConnected) {
       setWithdraw({ status: "error", txId: null, error: "Wallet not connected" });
       return;
@@ -94,13 +95,20 @@ export function usePool(asset: PoolAsset) {
     setWithdraw({ status: "pending", txId: null, error: null });
     try {
       const { request } = await import("@stacks/connect");
-      const { Cl, cvToHex } = await import("@stacks/transactions");
+      const { Cl, cvToHex, Pc } = await import("@stacks/transactions");
+
+      const poolId = `${pool.address}.${pool.name}` as `${string}.${string}`;
+      const min = BigInt(minReceive);
+      const postCondition = pool.nativeStx
+        ? Pc.principal(poolId).willSendGte(min).ustx()
+        : Pc.principal(poolId).willSendGte(min).ft(pool.tokenContract! as `${string}.${string}`, pool.tokenName!);
 
       const result = await request("stx_callContract", {
-        contract: `${pool.address}.${pool.name}`,
+        contract: poolId,
         functionName: "withdraw",
         functionArgs: [cvToHex(Cl.uint(BigInt(shares)))],
-        postConditionMode: "allow",
+        postConditions: [postCondition],
+        postConditionMode: "deny",
       });
 
       const txId = typeof result === "object" && result !== null && "txid" in result

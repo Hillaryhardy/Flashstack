@@ -61,7 +61,11 @@ export default function PoolPage() {
 
   const handleWithdraw = () => {
     if (!position || position.shares === 0n) return;
-    executeWithdraw(sharesToWithdraw);
+    // Minimum to receive = expected value for this % minus a 1% tolerance (share
+    // value only rises with fees, so this bound is conservative), in base units.
+    const expectedBase = (position.stxValue * BigInt(withdrawPct)) / 100n;
+    const minReceive = ((expectedBase * 99n) / 100n).toString();
+    executeWithdraw(sharesToWithdraw, minReceive);
   };
 
   const switchAsset = (a: PoolAsset) => {
