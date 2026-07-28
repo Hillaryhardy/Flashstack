@@ -84,16 +84,6 @@ plan:
       path: contracts/multidex-arbitrage-receiver.clar
       clarity-version: 2
     - transaction-type: emulated-contract-publish
-      contract-name: snp-flashstack-receiver
-      emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
-      path: contracts/snp-flashstack-receiver.clar
-      clarity-version: 2
-    - transaction-type: emulated-contract-publish
-      contract-name: snp-flashstack-receiver-v3
-      emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
-      path: contracts/snp-flashstack-receiver-v3.clar
-      clarity-version: 2
-    - transaction-type: emulated-contract-publish
       contract-name: test-receiver
       emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
       path: contracts/test-receiver.clar
@@ -104,3 +94,86 @@ plan:
       path: contracts/yield-optimization-receiver.clar
       clarity-version: 2
     epoch: '2.5'
+  - id: 1
+    transactions:
+    - transaction-type: emulated-contract-publish
+      contract-name: stx-flash-receiver-trait
+      emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
+      path: contracts/stx-flash-receiver-trait.clar
+      clarity-version: 3
+    - transaction-type: emulated-contract-publish
+      contract-name: flashstack-stx-pool
+      emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
+      path: contracts/test/flashstack-stx-pool.clar
+      clarity-version: 3
+    - transaction-type: emulated-contract-publish
+      contract-name: flashstack-pool-oracle
+      emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
+      path: contracts/test/flashstack-pool-oracle.clar
+      clarity-version: 3
+    - transaction-type: emulated-contract-publish
+      contract-name: flashstack-stx-pool-v2
+      emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
+      path: contracts/test/flashstack-stx-pool-v2.clar
+      clarity-version: 3
+    - transaction-type: emulated-contract-publish
+      contract-name: flashstack-pool-oracle-v2
+      emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
+      path: contracts/test/flashstack-pool-oracle-v2.clar
+      clarity-version: 3
+    - transaction-type: emulated-contract-publish
+      contract-name: sbtc-flash-receiver-trait
+      emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
+      path: contracts/sbtc-flash-receiver-trait.clar
+      clarity-version: 3
+    - transaction-type: emulated-contract-publish
+      contract-name: flashstack-sbtc-core
+      emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
+      path: contracts/test/flashstack-sbtc-core.clar
+      clarity-version: 3
+    - transaction-type: emulated-contract-publish
+      contract-name: flashstack-sbtc-pool
+      emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
+      path: contracts/test/flashstack-sbtc-pool.clar
+      clarity-version: 3
+    - transaction-type: emulated-contract-publish
+      contract-name: flashstack-sbtc-pool-v2
+      emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
+      path: contracts/test/flashstack-sbtc-pool-v2.clar
+      clarity-version: 3
+    - transaction-type: emulated-contract-publish
+      contract-name: flashstack-stx-core
+      emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
+      path: contracts/test/flashstack-stx-core.clar
+      clarity-version: 3
+    - transaction-type: emulated-contract-publish
+      contract-name: test-pool-receiver-good
+      emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
+      path: contracts/test/test-pool-receiver-good.clar
+      clarity-version: 3
+    - transaction-type: emulated-contract-publish
+      contract-name: test-receiver-bad
+      emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
+      path: contracts/test/test-receiver-bad.clar
+      clarity-version: 3
+    - transaction-type: emulated-contract-publish
+      contract-name: test-receiver-good
+      emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
+      path: contracts/test/test-receiver-good.clar
+      clarity-version: 3
+    - transaction-type: emulated-contract-publish
+      contract-name: test-sbtc-pool-receiver-good
+      emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
+      path: contracts/test/test-sbtc-pool-receiver-good.clar
+      clarity-version: 3
+    - transaction-type: emulated-contract-publish
+      contract-name: test-sbtc-receiver-bad
+      emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
+      path: contracts/test/test-sbtc-receiver-bad.clar
+      clarity-version: 3
+    - transaction-type: emulated-contract-publish
+      contract-name: test-sbtc-receiver-good
+      emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
+      path: contracts/test/test-sbtc-receiver-good.clar
+      clarity-version: 3
+    epoch: '3.0'
