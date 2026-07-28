@@ -1,7 +1,7 @@
 {
   "name": "flashstack",
   "version": "1.0.0",
-  "description": "The first trustless flash loan protocol on Bitcoin L2",
+  "description": "Uncollateralized flash loan protocol for STX and canonical sBTC on Bitcoin L2 (Stacks)",
   "type": "module",
   "scripts": {
     "test": "vitest run",

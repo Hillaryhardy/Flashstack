@@ -85,7 +85,8 @@ git clone https://github.com/mattglory/Flashstack.git
 cd flashstack
 npm install
 npm test          # 128 tests passing
-npm run check     # Clarinet contract verification
+npm run check     # clarinet check — type-checks contracts registered in Clarinet.toml
+                  # (script-deployed receivers aren't in the project; see docs/BUILD_A_RECEIVER.md)
 
 cd web && npm install && npm run dev   # frontend at http://localhost:3000
 ```

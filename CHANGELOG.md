@@ -13,7 +13,7 @@ All notable changes to this project are documented here.
 - Deployed `sbtc-flash-receiver-trait` — interface for sBTC receiver contracts
 - Deployed `sbtc-test-receiver` — minimal sBTC borrow-and-repay receiver
 - Deployed `velar-sbtc-arb-receiver` — live Velar wSTX↔sBTC arb receiver (pool 70, whitelisted)
-- Confirmed first canonical sBTC flash loan on mainnet
+- Confirmed FlashStack's first canonical sBTC flash loan on mainnet
 
 ### LP Collateral Oracle
 
@@ -32,7 +32,7 @@ All notable changes to this project are documented here.
 - Deployed `flashstack-stx-pool` — LP pool allowing external depositors to earn yield from flash loan fees
 - Deployed `bitflow-arb-receiver` — live STX/stSTX arbitrage receiver on Bitflow stableswap
 - Deployed `stx-test-receiver` — minimal STX borrow-and-repay receiver
-- Confirmed first STX flash loan on mainnet (Bitflow arb round-trip)
+- Confirmed FlashStack's first STX flash loan on mainnet (Bitflow arb round-trip)
 
 ### Architecture: Reserve Model
 

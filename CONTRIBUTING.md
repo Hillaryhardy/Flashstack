@@ -1,6 +1,6 @@
 # Contributing to FlashStack
 
-First off, thank you for considering contributing to FlashStack! It's people like you that make FlashStack the first and best flash loan protocol on Bitcoin Layer 2.
+First off, thank you for considering contributing to FlashStack! It's people like you that make FlashStack a stronger flash loan protocol on Bitcoin Layer 2.
 
 ## 🌟 Ways to Contribute
 

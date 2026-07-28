@@ -22,7 +22,19 @@ You → flashstack-stx-core.flash-loan(amount, receiver)
       core verifies repayment → success or full revert
 ```
 
-Zero capital required. If your strategy produces a loss, the transaction reverts — you lose only the Stacks transaction fee (~0.001 STX).
+Zero capital required for a **profitable** strategy — the arb or liquidation profit covers the fee, and if the strategy produces a loss the transaction reverts (you lose only the ~0.001 STX network fee). One subtlety to know before you deploy, though: your receiver must be holding `amount + fee` *before* it repays.
+
+### Do You Need a Seed?
+
+The loan gives your receiver the **principal**. It does **not** give you the **fee** or cover any **slippage** — and the core checks it got back `amount + fee` before the transaction can succeed. So the only question is whether your callback ends holding at least `amount + fee`:
+
+| Your strategy | Seed needed? |
+|---|---|
+| **Profitable arb / liquidation** (profit ≥ fee + slippage) | **No** — profit covers the fee; genuinely zero capital. |
+| **Break-even round-trip** (e.g. STX→stSTX→STX just to prove execution) | **Yes** — a small seed to cover the fee (0.05%) + DEX slippage. |
+| **Any strategy, while testing** | **Yes** — seed a buffer so a thin market doesn't revert your tx. |
+
+A freshly deployed, zero-balance receiver **cannot borrow even 1 µSTX** for a break-even strategy: it has nothing to pay the fee with, so the repay check reverts before your strategy ever profits. Seed it by sending a small amount of STX (or sBTC) to the contract after deploy, and add an owner-only `rescue-*` function (shown below) so you can pull the seed back out afterward.
 
 ---
 
@@ -88,6 +100,7 @@ Minimum working receiver:
 2. **Always look up `get-fee-basis-points` dynamically.** The fee can change. Hardcoding `u5` is a bug — if the fee increases, your repayment will be short and the tx will revert.
 3. **Use literal principals for trait arguments.** If you call a function that takes `<ft-trait>`, write the principal inline (e.g., `'SP102V8P0F7JX67ARQ77WEA3D3CFB5XW39REDT0AM.token-alex`). Using a `define-constant` for a trait argument will fail Clarity's static analysis.
 4. **Minimum fee is 1 microSTX.** For tiny loans, `(/ (* amount fee-bp) u10000)` rounds to zero. The template handles this with `(if (> raw-fee u0) raw-fee u1)`.
+5. **Deploying under your own wallet? Use absolute principals — never `.contract` sugar.** The in-repo example contracts call the core as `.flashstack-stx-core`. That sugar resolves to *the deploying address*, so it works **only** because those examples are deployed under the protocol deployer. Under your own wallet, `.flashstack-stx-core` resolves to `YOUR-ADDRESS.flashstack-stx-core` — a contract that doesn't exist — and every core call fails. Always write the full `'SP20XD46NGAX05ZQZDKFYCCX49A3852BQABNP0VG5.flashstack-stx-core`, exactly as every template in this guide does.
 
 ### A Real Strategy: DEX Arbitrage
 
@@ -132,7 +145,7 @@ Minimum working receiver:
 )
 ```
 
-Live example to read: [contracts/bitflow-arb-receiver.clar](../contracts/bitflow-arb-receiver.clar) (deployed as `bitflow-arb-receiver-v4` on mainnet) and [contracts/alex-arb-receiver.clar](../contracts/alex-arb-receiver.clar).
+Live example to read: [contracts/bitflow-arb-receiver.clar](../contracts/bitflow-arb-receiver.clar) (deployed as `bitflow-arb-receiver-v4` on mainnet) and [contracts/alex-arb-receiver.clar](../contracts/alex-arb-receiver.clar). **Read them for the swap logic — but they use `.flashstack-stx-core` sugar (see rule 5). If you deploy under your own wallet, copy the absolute-principal form from the templates above, not the sugar.**
 
 ---
 
@@ -194,6 +207,8 @@ const deployTx = await makeContractDeploy({
 });
 ```
 
+> ⚠️ **`makeContractDeploy` does not type-check your Clarity.** It just submits the source. A contract with a static-analysis error still broadcasts, fails on-chain (`(err none)` / `abort_by_response`), and **permanently reserves the contract name** — you'll have to rename to `-v2`. So type-check *before* you deploy. But note: **`clarinet check` only validates contracts listed in `Clarinet.toml`.** A receiver you deploy by script is not part of the project, so `clarinet check` (and `npm run check`) silently **skip it**. To actually check it, add it to `Clarinet.toml` — declaring the mainnet contracts it calls as `[[project.requirements]]` — then run `clarinet check`. (Also: a simnet run won't resolve hard-coded mainnet principals, so validate the type-check in a Clarinet project that pulls those requirements, or against local stubs.)
+
 ### Step 2: Get whitelisted
 
 FlashStack uses an allowlist. Only approved receivers can borrow. To get your contract whitelisted:
@@ -206,9 +221,31 @@ DM [@flashstackbtc](https://x.com/flashstackbtc) on X with your contract address
 
 Whitelisting is quick — usually same day for legitimate strategies.
 
-### Step 3: Test with the simulate read-only first
+### Step 3: Add a pre-flight `estimate` read-only
 
-Before executing a live flash loan, use your receiver's `simulate` function (if you added one) or call the core's `get-fee-basis-points` to verify the math:
+Before executing a live flash loan, add a read-only function to your receiver so you (and the whitelister) can verify the repayment math with no gas. Here is the exact pattern — including the one gotcha that bites everyone:
+
+```clarity
+(define-read-only (estimate-repayment (amount uint))
+  (let (
+    ;; GOTCHA: inside a define-read-only you MUST inline the core as a LITERAL
+    ;; principal. A `(define-constant CORE 'SP...)` reference is REJECTED here:
+    ;; Clarity can't prove the cross-contract call is read-only through a bound
+    ;; variable, so `clarinet check` / deploy fails with an analysis error.
+    (fee-bp  (unwrap-panic (contract-call?
+               'SP20XD46NGAX05ZQZDKFYCCX49A3852BQABNP0VG5.flashstack-stx-core
+               get-fee-basis-points)))
+    (raw-fee (/ (* amount fee-bp) u10000))
+    (fee     (if (> raw-fee u0) raw-fee u1))
+  )
+    (ok { loan-amount: amount, fee-to-pay: fee, total-owed: (+ amount fee) })
+  )
+)
+```
+
+> **Why inline it?** In a *public* function, using a `(define-constant CORE 'SP…)` in a `contract-call?` is fine. In a `define-read-only`, the same constant fails static analysis — you must write the absolute principal literally. This is a real, easy-to-miss deploy blocker (distinct from the trait-argument rule above).
+
+You can also sanity-check the live fee directly over HTTP:
 
 ```bash
 # Check current fee rate
@@ -246,6 +283,8 @@ const tx = await makeContractCall({
 |-------|-------|-----|
 | `(err u403)` on swap | DEX blocklist check — some AMMs block new contracts by default | Contact the DEX team to confirm your contract is permitted |
 | `(err none)` on deploy | Clarity static analysis failed — likely a `define-constant` used as a `<trait>` argument | Replace constants with literal principals in all `contract-call?` expressions that take trait-typed parameters |
+| `(err none)` on deploy (read-only fn) | A `define-constant` core principal used in a `contract-call?` inside a `define-read-only` | Inline the absolute principal literal inside the read-only (see Step 3) |
+| Repayment reverts on a break-even strategy | Receiver had no seed — nothing to pay the fee/slippage with | Seed the receiver after deploy (see *Do You Need a Seed?*) |
 | `ContractAlreadyExists` | A previous failed deploy (even `abort_by_response`) reserved the contract name | Rename your contract (e.g., append `-v2`) |
 | Repayment reverts | Strategy produced a loss — `stx-bal < total-owed` | Add a pre-flight `asserts!` check or use the `simulate` read-only before live execution |
 | `ERR-NOT-APPROVED` from core | Receiver not on the allowlist | Open a GitHub issue or DM to get whitelisted |

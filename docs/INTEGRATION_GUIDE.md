@@ -8,9 +8,9 @@
 
 ## What Is FlashStack?
 
-FlashStack is the first flash loan protocol on Bitcoin L2 (Stacks). It lets any developer borrow STX or canonical sBTC with zero collateral, execute any on-chain strategy, and repay — all within a single atomic transaction. If repayment fails, the entire transaction reverts automatically. No partial execution is possible.
+FlashStack is a flash loan protocol on Bitcoin L2 (Stacks). It lets any developer borrow STX or canonical sBTC with zero collateral, execute any on-chain strategy, and repay — all within a single atomic transaction. If repayment fails, the entire transaction reverts automatically. No partial execution is possible.
 
-**You do not need capital to use FlashStack.** You only need to deploy a receiver contract that knows how to repay `amount + fee` by the time your callback returns.
+**You don't need capital to fund the loan** — FlashStack provides the principal. But your receiver must be holding `amount + fee` by the time the callback returns. A profitable strategy (arb, liquidation) covers the fee out of its own profit. A break-even or test strategy must be **pre-seeded** with a small buffer to cover the fee plus any DEX slippage, or the repayment check reverts. See [BUILD_A_RECEIVER.md](BUILD_A_RECEIVER.md) → *Do you need a seed?*
 
 ---
 
@@ -234,6 +234,8 @@ Borrow STX, execute a round-trip swap on a Stacks DEX, repay, keep the spread.
 Confirmed mainnet arb tx: `0xabd33fc46ffa204ce61f25664f057e414063f28ce75c8387a6df9116453110cb`
 
 Source: [contracts/bitflow-arb-receiver.clar](../contracts/bitflow-arb-receiver.clar)
+
+> ⚠️ **Reading the in-repo examples?** They reference the core with `.contract` sugar (e.g. `.flashstack-stx-core`), which resolves to **the deployer's own address**. That works only because they are deployed under the protocol deployer. If you deploy under **your own** wallet, `.flashstack-stx-core` would resolve to `YOUR-ADDRESS.flashstack-stx-core` — a contract that doesn't exist — and every core call fails. **Always use the absolute principal** `'SP20XD46NGAX05ZQZDKFYCCX49A3852BQABNP0VG5.flashstack-stx-core`, exactly as the templates above do.
 
 **Pattern:**
 ```clarity
