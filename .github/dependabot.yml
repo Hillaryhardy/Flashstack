@@ -6,6 +6,12 @@ updates:
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 5
+    # Batch all non-major bumps into a single PR to keep the queue quiet.
+    groups:
+      minor-and-patch:
+        update-types:
+          - "minor"
+          - "patch"
     ignore:
       # Block ALL major version upgrades — require manual migration
       - dependency-name: "*"
@@ -17,6 +23,12 @@ updates:
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 5
+    # Batch all non-major bumps into a single PR to keep the queue quiet.
+    groups:
+      minor-and-patch:
+        update-types:
+          - "minor"
+          - "patch"
     ignore:
       # Block ALL major version upgrades — require manual migration
       - dependency-name: "*"
