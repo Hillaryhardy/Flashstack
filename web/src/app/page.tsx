@@ -259,8 +259,11 @@ export default function LandingPage() {
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
             Ready to try it?
           </h2>
-          <p className="text-slate-400 mb-8 max-w-lg mx-auto">
+          <p className="text-slate-400 mb-3 max-w-lg mx-auto">
             Connect your Leather wallet on Stacks mainnet. No registration, no KYC, no custodians — just code.
+          </p>
+          <p className="text-sm text-slate-500 mb-8 max-w-lg mx-auto">
+            LP deposits are open to anyone. During the unaudited beta, custom borrowing receivers are allowlisted for safety.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Link
