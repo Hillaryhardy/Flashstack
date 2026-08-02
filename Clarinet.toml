@@ -168,6 +168,48 @@ path = "contracts/test/flashstack-pool-oracle-v2.clar"
 clarity_version = 3
 epoch = "3.0"
 
+# --- flashstack-pool-v3: generic multi-asset flash-loan + LP pool ---
+# Built on Clarity 3 for now: verified 2026-08-01 that `as-contract` (used by
+# every deposit/withdraw/flash-loan) does not resolve at clarity_version=6 in
+# clarinet-sdk 3.22/3.23 or clarinet CLI 3.22 -- reproduced with a minimal
+# isolated probe contract, confirmed on the latest available SDK release. Not
+# a workaround-able code issue; it's a toolchain gap. Bump to clarity_version=6
+# (one-line change here + in the .clar headers) once clarinet/SDK fix this.
+[contracts.sip-010-trait-ft-standard]
+path = "contracts/test/sip-010-trait-ft-standard.clar"
+clarity_version = 3
+epoch = "3.0"
+
+[contracts.flashstack-v3-receiver-trait]
+path = "contracts/test/flashstack-v3-receiver-trait.clar"
+clarity_version = 3
+epoch = "3.0"
+
+[contracts.mock-usdcx]
+path = "contracts/test/mock-usdcx.clar"
+clarity_version = 3
+epoch = "3.0"
+
+[contracts.malicious-token]
+path = "contracts/test/malicious-token.clar"
+clarity_version = 3
+epoch = "3.0"
+
+[contracts.flashstack-pool-v3]
+path = "contracts/test/flashstack-pool-v3.clar"
+clarity_version = 3
+epoch = "3.0"
+
+[contracts.test-pool-v3-receiver-good]
+path = "contracts/test/test-pool-v3-receiver-good.clar"
+clarity_version = 3
+epoch = "3.0"
+
+[contracts.test-pool-v3-receiver-bad]
+path = "contracts/test/test-pool-v3-receiver-bad.clar"
+clarity_version = 3
+epoch = "3.0"
+
 [repl.analysis]
 passes = ["check_checker"]
 
