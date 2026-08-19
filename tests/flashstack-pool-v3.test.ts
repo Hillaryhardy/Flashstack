@@ -197,6 +197,31 @@ describe("flashstack-pool-v3", () => {
   });
 
   // ---------------------------------------------------------------------
+  // Deposit guards -- symmetric with withdraw's existing zero-output guard
+  // ---------------------------------------------------------------------
+  describe("deposit rejects a zero-share mint", () => {
+    it("a dust deposit into a richly-valued pool reverts instead of silently minting 0 shares", () => {
+      addAsset(SBTC);
+      mintSbtc(1, attacker);
+      deposit(SBTC, 1, attacker); // bootstrap: 1 sat -> 1,000,000 shares
+
+      // Skew the pool's price-per-share far above 1 base unit via a direct
+      // donation (same technique as the F-1 test) -- deposit() reads the
+      // token's LIVE balance, so this is visible immediately, no separate
+      // cache-refresh step needed.
+      mintSbtc(10_000_000, attacker);
+      simnet.callPublicFn(SBTC, "transfer",
+        [Cl.uint(10_000_000), Cl.principal(attacker), Cl.principal(`${deployer}.${POOL}`), Cl.none()], attacker);
+
+      // new-shares = 1 * (1,000,000 + 1,000,000) / (10,000,001 + 1) = 2,000,000 / 10,000,002 = 0 (floor).
+      // Before the fix this would have transferred 1 real sat from the victim
+      // and minted 0 shares -- a silent, unrecoverable loss of their deposit.
+      mintSbtc(1, lp1); // give the victim exactly enough to attempt the deposit
+      expect(deposit(SBTC, 1, lp1).result).toBeErr(Cl.uint(ERR.ZERO_AMOUNT));
+    });
+  });
+
+  // ---------------------------------------------------------------------
   // Flash-loan balance invariant
   // ---------------------------------------------------------------------
   describe("flash-loan invariant", () => {

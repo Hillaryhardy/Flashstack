@@ -226,13 +226,27 @@
   )
     (asserts! (get enabled cfg) ERR-NOT-LISTED)
     (asserts! (> amount u0) ERR-ZERO-AMOUNT)
-    (unwrap! (contract-call? token transfer amount depositor (as-contract tx-sender) none) ERR-TRANSFER-FAILED)
+    ;; Reject a deposit that would mint zero shares (e.g. a dust amount into
+    ;; an already-large/valuable pool, rounding down to 0 via floor division).
+    ;; Without this, the transfer would still succeed and the depositor would
+    ;; silently lose their funds with no shares credited. Mirrors the
+    ;; equivalent guard withdraw() already has on its output (amount-out > 0).
+    (asserts! (> new-shares u0) ERR-ZERO-AMOUNT)
+    ;; Effects before interaction (matches withdraw's ordering below): all
+    ;; state is written from values already captured above, THEN the external
+    ;; call is made. If the transfer subsequently fails, the whole transaction
+    ;; -- including these map-sets -- reverts atomically, so this costs
+    ;; nothing on the happy path. It closes a reentrancy-corruption window: if
+    ;; a listed token's transfer ever called back into deposit/withdraw for
+    ;; the same asset mid-call, updating state first means there is nothing
+    ;; left for the outer call to overwrite afterward.
     (map-set lp-shares { asset: asset, lp: depositor }
       (+ (default-to u0 (map-get? lp-shares { asset: asset, lp: depositor })) new-shares))
     (map-set total-shares asset (+ current-shares new-shares))
-    ;; Refresh the cached reserve: this deposit's transfer just landed `amount`
+    ;; Refresh the cached reserve: this deposit is about to land `amount`
     ;; more into the contract, on top of the balance measured above.
     (map-set assets asset (merge cfg { reserve: (+ pool-balance amount) }))
+    (unwrap! (contract-call? token transfer amount depositor (as-contract tx-sender) none) ERR-TRANSFER-FAILED)
     (ok new-shares)
   )
 )
