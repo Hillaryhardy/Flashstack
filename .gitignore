@@ -154,7 +154,12 @@ docs/TRACTION.md
 docs/archive/
 docs/blog/
 docs/01-project/
-docs/02-technical/
+docs/02-technical/*
+# Exception: no sensitive content (no keys, no business data) -- referenced
+# by name in flashstack-pool-v3.clar's own comments, and external reviewers
+# keep needing it (email attachments have failed twice). Everything else in
+# 02-technical/ stays local.
+!docs/02-technical/MULTI_ASSET_CORE_DESIGN.md
 docs/03-grants/
 docs/04-deployment/
 docs/05-security/
