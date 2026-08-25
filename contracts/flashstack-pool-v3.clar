@@ -19,16 +19,25 @@
 ;;     before/after the callback and reverts unless it grew by >= fee.
 ;;   - Receiver whitelist: defense-in-depth during the unaudited beta
 ;;     (decision #1); not load-bearing for solvency.
-;;   - Virtual shares/assets (F-1 fix), per asset, from day one.
+;;   - Virtual shares/assets (F-1 fix), per asset, calibrated to each asset's
+;;     own decimals (design doc section 13, finding F2).
 ;;   - Two-step admin transfer (decision #5, BC1 audit finding 2026-08-01):
 ;;     every currently-deployed governed FlashStack contract uses a one-step,
 ;;     self-gated admin transfer that permanently bricks governance if given a
 ;;     bad value, with no recovery. Ported verbatim from the proven fix in
 ;;     flashstack-sbtc-pool-v3 / flashstack-stx-pool-v3 / flashstack-sbtc-core-v2.
-;;   - Withdraw is intentionally NOT gated by asset enabled/paused/listed
-;;     status: LPs can always exit their position, matching the invariant
-;;     already relied on for v1/v2 pool recovery (withdraw is never
-;;     pause-gated in any deployed FlashStack pool).
+;;   - Per-asset reentrancy lock (design doc section 13, finding F1): blocks
+;;     deposit/withdraw/flash-loan from reentering each other for the SAME
+;;     asset mid-call. Scoped per-asset (not global) so a receiver's callback
+;;     can still legitimately flash-loan a DIFFERENT asset in the same
+;;     transaction -- each asset's balance invariant is independently safe
+;;     (section 5), and blocking that would regress real multi-asset strategies.
+;;   - Withdraw is intentionally NOT gated by asset enabled/paused status: LPs
+;;     can always exit their position, matching the invariant already relied
+;;     on for v1/v2 pool recovery (withdraw is never pause-gated in any
+;;     deployed FlashStack pool). remove-asset soft-disables (enabled: false)
+;;     rather than deleting the map entry, specifically so withdraw can keep
+;;     reading share-scale/reserve for a delisted asset.
 ;;
 ;; NOT YET DEPLOYED. Deploy order: flashstack-v3-receiver-trait FIRST (fresh,
 ;; under the secure wallet SPR9PQ...), then this contract.
@@ -62,6 +71,9 @@
 (define-constant ERR-INVALID-FEE          (err u812))
 (define-constant ERR-INSUFFICIENT-SHARES  (err u813))
 (define-constant ERR-BALANCE-READ-FAILED  (err u814))
+(define-constant ERR-REENTRANT            (err u815))
+(define-constant ERR-DECIMALS-READ-FAILED (err u816))
+(define-constant ERR-DECIMALS-TOO-LARGE   (err u817))
 
 ;; =============================================
 ;; Constants
@@ -70,11 +82,16 @@
 ;; Hard cap on per-asset fee: admin cannot set a predatory fee (decision #4).
 (define-constant MAX-FEE-BP u100) ;; 100 bp = 1%
 
+;; Sanity cap on a listed token's own get-decimals() (F2 fix). No real SIP-010
+;; exceeds this; guards the share-scale computation against a pathological value.
+(define-constant MAX-DECIMALS u24)
+
 ;; F-1 fix: virtual shares + virtual assets (OpenZeppelin ERC-4626 inflation-
-;; attack mitigation), applied per asset from day one (design doc section 6).
-(define-constant VIRTUAL-SHARES u1000000) ;; 1e6 phantom shares
-(define-constant VIRTUAL-ASSETS u1)       ;; 1 phantom base-unit of the asset
-(define-constant SHARE-PRECISION u1000000)
+;; attack mitigation). VIRTUAL-ASSETS is asset-agnostic (always "1 phantom
+;; base-unit"); the phantom-SHARES side is calibrated per asset via the
+;; `share-scale` field on `assets` (= 10^decimals, matching how the sibling
+;; single-asset v3 contracts calibrate it -- design doc section 13, F2).
+(define-constant VIRTUAL-ASSETS u1)
 
 ;; =============================================
 ;; State
@@ -83,6 +100,10 @@
 (define-data-var admin         principal tx-sender)
 (define-data-var pending-admin (optional principal) none)
 (define-data-var paused        bool false) ;; global circuit breaker
+
+;; Per-asset reentrancy lock (F1 fix). Keyed by asset, not global -- see the
+;; header comment for why per-asset scoping matters.
+(define-map asset-locked principal bool)
 
 ;; Per-asset config, keyed by the token's contract principal (contract-of token).
 ;; `reserve` is a CACHE of the token's live balance, refreshed at the end of
@@ -95,12 +116,19 @@
 ;; via deposit) will not appear in the oracle price until the next real
 ;; interaction refreshes the cache -- expected, not a solvency issue: the
 ;; balance invariant in flash-loan/withdraw still measures the live balance.
+;; `share-scale` = 10^(token's own decimals), set from a live get-decimals()
+;; call in add-asset (F2 fix) -- replaces a flat cross-asset constant that
+;; under-calibrated the F-1 protection for higher-decimal assets like sBTC.
+;; `enabled` is toggled false by remove-asset (soft-disable, not deleted) so
+;; withdraw can keep reading share-scale/reserve for a delisted asset, and
+;; add-asset can re-enable without losing calibration.
 (define-map assets principal {
   enabled:      bool,
   fee-bp:       uint,
   max-loan:     uint,
   paused:       bool,
   reserve:      uint,
+  share-scale:  uint,
   total-loans:  uint,
   total-volume: uint,
   total-fees:   uint,
@@ -143,17 +171,30 @@
 ;; Admin -- asset allow-list (load-bearing for solvency, section 7)
 ;; =============================================
 
-(define-public (add-asset (token principal) (fee-bp uint) (max-loan uint))
-  (begin
+;; Lists a NEW asset, or re-enables one previously delisted via remove-asset.
+;; Takes the token as a trait (not a bare principal) so it can live-query
+;; get-decimals() to calibrate share-scale (F2), and get-balance() to seed
+;; `reserve` with whatever the pool actually holds rather than hardcoding 0
+;; (hardening: a re-enabled or pre-funded asset could otherwise start with a
+;; stale/wrong cached reserve).
+(define-public (add-asset (token <sip-010-trait>) (fee-bp uint) (max-loan uint))
+  (let (
+    (asset        (contract-of token))
+    (existing     (map-get? assets asset))
+    (decimals     (unwrap! (contract-call? token get-decimals) ERR-DECIMALS-READ-FAILED))
+    (live-balance (unwrap! (contract-call? token get-balance (as-contract tx-sender)) ERR-BALANCE-READ-FAILED))
+  )
     (asserts! (is-eq tx-sender (var-get admin)) ERR-NOT-ADMIN)
-    (asserts! (is-none (map-get? assets token)) ERR-ALREADY-LISTED)
+    (asserts! (not (default-to false (get enabled existing))) ERR-ALREADY-LISTED)
     (asserts! (and (> fee-bp u0) (<= fee-bp MAX-FEE-BP)) ERR-INVALID-FEE)
     (asserts! (> max-loan u0) ERR-ZERO-AMOUNT)
-    (map-set assets token {
-      enabled: true, fee-bp: fee-bp, max-loan: max-loan, paused: false, reserve: u0,
+    (asserts! (<= decimals MAX-DECIMALS) ERR-DECIMALS-TOO-LARGE)
+    (map-set assets asset {
+      enabled: true, fee-bp: fee-bp, max-loan: max-loan, paused: false,
+      reserve: live-balance, share-scale: (pow u10 decimals),
       total-loans: u0, total-volume: u0, total-fees: u0,
     })
-    (print { event: "asset-added", token: token, fee-bp: fee-bp, max-loan: max-loan })
+    (print { event: "asset-added", token: asset, fee-bp: fee-bp, max-loan: max-loan, decimals: decimals })
     (ok true)
   )
 )
@@ -170,14 +211,18 @@
   )
 )
 
-;; Delists the asset (blocks future deposit/flash-loan). Does NOT touch
-;; lp-shares/total-shares -- existing LPs can still withdraw (withdraw is not
-;; gated by this map at all), and it can be re-added later with add-asset.
+;; Soft-delists the asset (blocks future deposit/flash-loan): sets
+;; enabled:false rather than deleting the map entry, so withdraw can still
+;; read share-scale/reserve for LPs exiting a delisted asset, and add-asset
+;; can re-enable it later without recomputing calibration from scratch (though
+;; it does recompute anyway, live, for safety -- see add-asset).
 (define-public (remove-asset (token principal))
   (begin
     (asserts! (is-eq tx-sender (var-get admin)) ERR-NOT-ADMIN)
-    (asserts! (is-some (map-get? assets token)) ERR-NOT-LISTED)
-    (ok (map-delete assets token))
+    (let ((cfg (unwrap! (map-get? assets token) ERR-NOT-LISTED)))
+      (asserts! (get enabled cfg) ERR-NOT-LISTED)
+      (ok (map-set assets token (merge cfg { enabled: false })))
+    )
   )
 )
 
@@ -217,9 +262,17 @@
     (cfg          (unwrap! (map-get? assets asset) ERR-NOT-LISTED))
     (pool-balance (unwrap! (contract-call? token get-balance (as-contract tx-sender)) ERR-BALANCE-READ-FAILED))
     (current-shares (default-to u0 (map-get? total-shares asset)))
-    ;; shares = amount * (total_shares + VS) / (pool_balance + VA)
-    (new-shares (/ (* amount (+ current-shares VIRTUAL-SHARES)) (+ pool-balance VIRTUAL-ASSETS)))
+    ;; shares = amount * (total_shares + share_scale) / (pool_balance + VA)
+    (new-shares (/ (* amount (+ current-shares (get share-scale cfg))) (+ pool-balance VIRTUAL-ASSETS)))
   )
+    ;; F1 fix: per-asset reentrancy guard, checked first.
+    (asserts! (not (default-to false (map-get? asset-locked asset))) ERR-REENTRANT)
+    (map-set asset-locked asset true)
+    ;; F3 fix: deposit is now gated by pause, matching flash-loan. Pausing is a
+    ;; circuit breaker for "something may be wrong" -- new deposits/loans stop,
+    ;; but withdraw (below) is never gated, so LPs can always still exit.
+    (asserts! (not (var-get paused)) ERR-PAUSED)
+    (asserts! (not (get paused cfg)) ERR-ASSET-PAUSED)
     (asserts! (get enabled cfg) ERR-NOT-LISTED)
     (asserts! (> amount u0) ERR-ZERO-AMOUNT)
     ;; Reject a deposit that would mint zero shares (e.g. a dust amount into
@@ -235,7 +288,8 @@
     ;; nothing on the happy path. It closes a reentrancy-corruption window: if
     ;; a listed token's transfer ever called back into deposit/withdraw for
     ;; the same asset mid-call, updating state first means there is nothing
-    ;; left for the outer call to overwrite afterward.
+    ;; left for the outer call to overwrite afterward. (Belt-and-suspenders
+    ;; with the F1 lock above, which blocks the same-asset reentry outright.)
     (map-set lp-shares { asset: asset, lp: depositor }
       (+ (default-to u0 (map-get? lp-shares { asset: asset, lp: depositor })) new-shares))
     (map-set total-shares asset (+ current-shares new-shares))
@@ -243,6 +297,7 @@
     ;; more into the contract, on top of the balance measured above.
     (map-set assets asset (merge cfg { reserve: (+ pool-balance amount) }))
     (unwrap! (contract-call? token transfer amount depositor (as-contract tx-sender) none) ERR-TRANSFER-FAILED)
+    (map-set asset-locked asset false)
     (ok new-shares)
   )
 )
@@ -253,23 +308,28 @@
     (withdrawer       tx-sender)
     (depositor-shares (default-to u0 (map-get? lp-shares { asset: asset, lp: withdrawer })))
     (current-shares   (default-to u0 (map-get? total-shares asset)))
+    ;; Guaranteed present: lp-shares can only be nonzero for an asset that was
+    ;; added at least once (deposit requires the map entry to exist), and
+    ;; remove-asset soft-disables rather than deleting -- so this unwrap!
+    ;; never fails for a genuine withdrawer, even on a delisted asset.
+    (cfg              (unwrap! (map-get? assets asset) ERR-NOT-LISTED))
     (pool-balance     (unwrap! (contract-call? token get-balance (as-contract tx-sender)) ERR-BALANCE-READ-FAILED))
-    ;; assets_out = shares * (pool_balance + VA) / (total_shares + VS)
-    (amount-out (/ (* shares (+ pool-balance VIRTUAL-ASSETS)) (+ current-shares VIRTUAL-SHARES)))
+    ;; assets_out = shares * (pool_balance + VA) / (total_shares + share_scale)
+    (amount-out (/ (* shares (+ pool-balance VIRTUAL-ASSETS)) (+ current-shares (get share-scale cfg))))
   )
+    ;; F1 fix: per-asset reentrancy guard. Withdraw itself has no external
+    ;; callback surface, but this closes the loop against a flash-loan/deposit
+    ;; on the SAME asset reentering INTO a withdraw mid-call.
+    (asserts! (not (default-to false (map-get? asset-locked asset))) ERR-REENTRANT)
+    (map-set asset-locked asset true)
     (asserts! (> shares u0) ERR-ZERO-AMOUNT)
     (asserts! (>= depositor-shares shares) ERR-INSUFFICIENT-SHARES)
     (asserts! (> amount-out u0) ERR-ZERO-AMOUNT)
     (map-set lp-shares { asset: asset, lp: withdrawer } (- depositor-shares shares))
     (map-set total-shares asset (- current-shares shares))
     (unwrap! (as-contract (contract-call? token transfer amount-out tx-sender withdrawer none)) ERR-TRANSFER-FAILED)
-    ;; Refresh the cached reserve if the asset is still listed (it may have
-    ;; been removed via remove-asset -- withdraw must still work either way,
-    ;; so this is a no-op rather than an error in that case).
-    (match (map-get? assets asset)
-      cfg (map-set assets asset (merge cfg { reserve: (- pool-balance amount-out) }))
-      true
-    )
+    (map-set assets asset (merge cfg { reserve: (- pool-balance amount-out) }))
+    (map-set asset-locked asset false)
     (ok amount-out)
   )
 )
@@ -287,6 +347,12 @@
     (fee       (if (> raw-fee u0) raw-fee u1))
     (reserve-before (unwrap! (contract-call? token get-balance (as-contract tx-sender)) ERR-BALANCE-READ-FAILED))
   )
+    ;; F1 fix: per-asset reentrancy guard. This is what actually stops
+    ;; Hillary Kibet's finding -- a receiver reentering deposit() for the SAME
+    ;; asset during this callback now hits ERR-REENTRANT and the whole
+    ;; transaction reverts, instead of silently corrupting total-fees/volume.
+    (asserts! (not (default-to false (map-get? asset-locked asset)))         ERR-REENTRANT)
+    (map-set asset-locked asset true)
     (asserts! (not (var-get paused))                                          ERR-PAUSED)
     (asserts! (get enabled cfg)                                               ERR-NOT-LISTED)
     (asserts! (not (get paused cfg))                                          ERR-ASSET-PAUSED)
@@ -311,6 +377,7 @@
         total-volume: (+ (get total-volume cfg) amount),
         total-fees:   (+ (get total-fees cfg) (- reserve-after reserve-before)),
       }))
+      (map-set asset-locked asset false)
       (print { event: "flash-loan", asset: asset, receiver: receiver-principal, amount: amount, fee: fee })
       (ok true)
     )
@@ -329,17 +396,21 @@
   (map-get? assets token)
 )
 
+;; "Listed" means an entry exists AND is currently enabled -- a soft-removed
+;; (delisted) asset is not listed, even though its map entry still exists so
+;; withdraw can keep reading it.
 (define-read-only (is-listed (token principal))
-  (is-some (map-get? assets token))
+  (default-to false (get enabled (map-get? assets token)))
 )
 
-;; Cached reserve (see the `assets` map comment for why this isn't a live
-;; contract-call: Clarity forbids dynamic trait dispatch in define-read-only).
+;; Hardening (design doc section 13): errors for a token that was never
+;; listed, instead of silently returning a plausible-looking zero/default --
+;; a caller checking collateral value for an unlisted token should get a
+;; clear error, not a value that looks like a valid (if tiny) price.
 (define-read-only (get-reserve (token principal))
-  (ok (get reserve (default-to
-    { enabled: false, fee-bp: u0, max-loan: u0, paused: false, reserve: u0,
-      total-loans: u0, total-volume: u0, total-fees: u0 }
-    (map-get? assets token))))
+  (let ((cfg (unwrap! (map-get? assets token) ERR-NOT-LISTED)))
+    (ok (get reserve cfg))
+  )
 )
 
 (define-read-only (is-approved-receiver (receiver principal))
@@ -354,29 +425,37 @@
   (default-to u0 (map-get? total-shares token))
 )
 
-;; Current value of one pool share for `token`, scaled by SHARE-PRECISION.
-;; Well-defined at zero shares (F-2 fix: virtual-offset formula, no special
-;; case). Reads the cached reserve (see `assets` map comment) rather than a
-;; live contract-call -- dynamic trait dispatch is not allowed in read-only fns.
+;; Current value of one pool share for `token`, scaled by the asset's own
+;; share-scale (F2 fix: was a flat cross-asset constant, now calibrated to
+;; the token's decimals). Well-defined at zero shares (F-2-original fix:
+;; virtual-offset formula, no special case). Reads the cached reserve (see
+;; `assets` map comment) rather than a live contract-call -- dynamic trait
+;; dispatch is not allowed in read-only fns. Errors for an unlisted token
+;; (hardening, section 13) instead of a plausible-looking default.
 (define-read-only (get-share-price (token principal))
   (let (
-    (pool-balance   (default-to u0 (get reserve (map-get? assets token))))
+    (cfg            (unwrap! (map-get? assets token) ERR-NOT-LISTED))
+    (pool-balance   (get reserve cfg))
+    (scale          (get share-scale cfg))
     (current-shares (default-to u0 (map-get? total-shares token)))
   )
-    (ok (/ (* (+ pool-balance VIRTUAL-ASSETS) SHARE-PRECISION) (+ current-shares VIRTUAL-SHARES)))
+    (ok (/ (* (+ pool-balance VIRTUAL-ASSETS) scale) (+ current-shares scale)))
   )
 )
 
 ;; Current value of an LP's position in `token`'s base units (cached reserve).
+;; Errors for an unlisted token (hardening, section 13).
 (define-read-only (get-lp-value (token principal) (lp principal))
   (let (
+    (cfg            (unwrap! (map-get? assets token) ERR-NOT-LISTED))
     (shares         (default-to u0 (map-get? lp-shares { asset: token, lp: lp })))
-    (pool-balance   (default-to u0 (get reserve (map-get? assets token))))
+    (pool-balance   (get reserve cfg))
+    (scale          (get share-scale cfg))
     (current-shares (default-to u0 (map-get? total-shares token)))
   )
     (if (is-eq shares u0)
       (ok u0)
-      (ok (/ (* shares (+ pool-balance VIRTUAL-ASSETS)) (+ current-shares VIRTUAL-SHARES)))
+      (ok (/ (* shares (+ pool-balance VIRTUAL-ASSETS)) (+ current-shares scale)))
     )
   )
 )
