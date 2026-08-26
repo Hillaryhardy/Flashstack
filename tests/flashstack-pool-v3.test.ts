@@ -43,7 +43,7 @@ describe("flashstack-pool-v3", () => {
     simnet.callPublicFn(USDC, "mint", [Cl.uint(amount), Cl.principal(to)], deployer);
 
   const addAsset = (asset: string, feeBp = FEE_BP, maxLoan = MAX_LOAN, sender = deployer) =>
-    simnet.callPublicFn(POOL, "add-asset", [Cl.principal(assetPrincipal(asset)), Cl.uint(feeBp), Cl.uint(maxLoan)], sender);
+    simnet.callPublicFn(POOL, "add-asset", [Cl.contractPrincipal(deployer, asset), Cl.uint(feeBp), Cl.uint(maxLoan)], sender);
 
   const deposit = (asset: string, amount: number, who: string) =>
     simnet.callPublicFn(POOL, "deposit", [Cl.contractPrincipal(deployer, asset), Cl.uint(amount)], who);
@@ -201,19 +201,21 @@ describe("flashstack-pool-v3", () => {
   // ---------------------------------------------------------------------
   describe("deposit rejects a zero-share mint", () => {
     it("a dust deposit into a richly-valued pool reverts instead of silently minting 0 shares", () => {
-      addAsset(SBTC);
+      addAsset(SBTC); // share-scale = 1e8 (F2: calibrated to sBTC's 8 decimals)
       mintSbtc(1, attacker);
-      deposit(SBTC, 1, attacker); // bootstrap: 1 sat -> 1,000,000 shares
+      deposit(SBTC, 1, attacker); // bootstrap: 1 sat -> 100,000,000 shares
 
       // Skew the pool's price-per-share far above 1 base unit via a direct
       // donation (same technique as the F-1 test) -- deposit() reads the
       // token's LIVE balance, so this is visible immediately, no separate
-      // cache-refresh step needed.
-      mintSbtc(10_000_000, attacker);
+      // cache-refresh step needed. Needs to clear ~2 BTC (200,000,000 sats)
+      // now that share-scale is 1e8 (F2 strengthened this protection, so a
+      // bigger donation is needed to still force a 1-sat deposit to zero).
+      mintSbtc(300_000_000, attacker);
       simnet.callPublicFn(SBTC, "transfer",
-        [Cl.uint(10_000_000), Cl.principal(attacker), Cl.principal(`${deployer}.${POOL}`), Cl.none()], attacker);
+        [Cl.uint(300_000_000), Cl.principal(attacker), Cl.principal(`${deployer}.${POOL}`), Cl.none()], attacker);
 
-      // new-shares = 1 * (1,000,000 + 1,000,000) / (10,000,001 + 1) = 2,000,000 / 10,000,002 = 0 (floor).
+      // new-shares = 1 * (100,000,000 + 100,000,000) / (300,000,001 + 1) = 200,000,000 / 300,000,002 = 0 (floor).
       // Before the fix this would have transferred 1 real sat from the victim
       // and minted 0 shares -- a silent, unrecoverable loss of their deposit.
       mintSbtc(1, lp1); // give the victim exactly enough to attempt the deposit
